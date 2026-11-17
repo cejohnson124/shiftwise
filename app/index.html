@@ -166,6 +166,15 @@
 
   .selbar { position: sticky; top: 8px; z-index: 5; background: var(--navy); color: var(--cream); border-radius: 14px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: .92rem; margin-bottom: 12px; }
   .selbar .btn-ghost { background: transparent; color: var(--cream); border-color: var(--cream); }
+  .selbar .btn-amber { box-shadow: 0 4px 0 var(--amber-dk); }
+  .movebar { background: var(--amber-soft); color: var(--navy); border: 2px dashed var(--amber); }
+  .movebar .mv-ico { width: 30px; height: 30px; border-radius: 9px; background: var(--amber); display: grid; place-items: center; font-size: 1.1rem; flex: none; }
+  .moving .chip[data-emp] { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 3px 0 var(--ink); }
+  .moving .chip[data-emp]::before { content: "⠿"; margin-right: 6px; opacity: .55; font-size: .8em; }
+  .moving .cell { border-color: var(--amber); }
+  .chip.swap-hover { outline: 3px solid var(--amber); outline-offset: 2px; }
+  .drag-ghost { position: fixed; z-index: 90; pointer-events: none; transform: translate(-50%, -50%) rotate(-4deg) scale(1.08); box-shadow: 0 14px 28px rgba(15,26,43,.35); background: var(--amber); color: var(--navy); }
+  body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select: none; }
 
   /* Hours table */
   table { width: 100%; border-collapse: collapse; font-size: .92rem; }
@@ -418,7 +427,7 @@ function load() {
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 S = load() || freshState();
 
-const ui = { mtab: 'schedule', etab: 'home', sel: null, drag: null, formOpenedAt: null, editId: null, showAllConflicts: false };
+const ui = { mtab: 'schedule', etab: 'home', sel: null, drag: null, moveMode: false, formOpenedAt: null, editId: null, showAllConflicts: false };
 
 const emp = id => S.employees.find(e => e.id === id);
 const empName = id => (emp(id) || { name: 'Former employee' }).name;
@@ -680,7 +689,7 @@ function gridHTML(wk, opts) {
           if (opts.edit) {
             const bad = conflictFor(id, sh);
             const sel = ui.sel && ui.sel.shiftId === sh.id && ui.sel.empId === id;
-            h += `<button class="chip${bad ? ' bad' : ''}${sel ? ' sel' : ''}" draggable="true" data-act="chip" data-shift="${sh.id}" data-emp="${id}" title="${name}${bad ? ' — conflict on record!' : ''}">${name}</button>`;
+            h += `<button class="chip${bad ? ' bad' : ''}${sel ? ' sel' : ''}" ${ui.moveMode ? '' : 'draggable="true"'} data-act="chip" data-shift="${sh.id}" data-emp="${id}" title="${name}${bad ? ' — conflict on record!' : ''}">${name}</button>`;
           } else {
             h += `<span class="chip${id === opts.me ? ' me' : ''}">${name}</span>`;
           }
@@ -754,14 +763,16 @@ function mSchedule() {
     ${rulesStrip(a)}
     <div class="card">
       <div class="print-title"><h2>${esc(S.store)} · ${weekLabel(S.week)}</h2></div>
-      ${ui.sel ? `<div class="selbar no-print"><span>Moving <strong>${esc(empName(ui.sel.empId))}</strong>. Tap an open spot or a name to swap.</span>
-        <span style="margin-left:auto" class="row"><button class="btn btn-sm btn-ghost" data-act="unassign">Remove from shift</button><button class="btn btn-sm btn-ghost" data-act="cancelsel">Cancel</button></span></div>` : ''}
-      ${gridHTML(S.week, { shifts: weekShifts(), asg: s.draft, edit: true })}
+      ${ui.moveMode ? `<div class="selbar movebar no-print"><span class="mv-ico">✥</span><span><strong>Move mode:</strong> drag any name to any spot, or onto another name to swap. You have the final say.</span>
+        <span style="margin-left:auto" class="row"><button class="btn btn-sm btn-amber" data-act="movedone">Done</button></span></div>`
+      : ui.sel ? `<div class="selbar no-print"><span>Moving <strong>${esc(empName(ui.sel.empId))}</strong>. Tap an open spot or a name to swap.</span>
+        <span style="margin-left:auto" class="row"><button class="btn btn-sm btn-amber" data-act="movemode">Move</button><button class="btn btn-sm btn-ghost" data-act="unassign">Remove from shift</button><button class="btn btn-sm btn-ghost" data-act="cancelsel">Cancel</button></span></div>` : ''}
+      <div class="${ui.moveMode ? 'moving' : ''}">${gridHTML(S.week, { shifts: weekShifts(), asg: s.draft, edit: true })}</div>
       <div class="legend no-print">
         <span><i style="background:var(--navy)"></i>Scheduled</span>
         <span><i style="border:1.5px dashed var(--amber)"></i>Open spot</span>
         <span><i style="background:var(--red)"></i>Scheduled over a conflict</span>
-        <span>Drag names between shifts, or tap a name then tap where it should go.</span>
+        <span>${ui.moveMode ? 'Move mode: drag any name anywhere.' : 'Tap a name to move or remove it, then tap <strong>Move</strong> to drag freely.'}</span>
       </div>
     </div>
     ${hoursCard(a)}
@@ -1142,6 +1153,102 @@ function swap(aEmp, aShift, bEmp, bShift) {
   toast(`Swapped ${empName(aEmp)} and ${empName(bEmp)}.`);
 }
 
+/* ---------- move mode: the manager's override ----------
+   Anything goes except putting someone in two places at once.
+   Conflicts ask for confirmation; full shifts just get one more person.  */
+const where = sh => `${DAY[pd(sh.date).getDay()]} ${sh.label}`;
+function doubleBooked(empId, sh, ignoreShiftId) {
+  const asg = sched().draft;
+  return weekShifts().find(o => o.id !== sh.id && o.id !== ignoreShiftId && (asg[o.id] || []).includes(empId) && shiftsOverlap(o, sh));
+}
+function okConflicts(list) { // list of [empId, shift]
+  const hitsList = list.map(([id, sh]) => [id, sh, conflictFor(id, sh)]).filter(x => x[2]);
+  if (!hitsList.length) return true;
+  return confirm(hitsList.map(([id, sh, c]) => `${empName(id)} has a conflict on record during ${where(sh)}${c.reason ? ` (“${c.reason}”)` : ''}.`).join('\n') + '\n\nSchedule anyway? You have the final say.');
+}
+function forceMove(empId, fromId, toId) {
+  const s = sched(), to = shiftById(toId);
+  if (!to || fromId === toId) return render();
+  s.draft[toId] = s.draft[toId] || [];
+  if (s.draft[toId].includes(empId)) { render(); return toast(`${empName(empId)} is already on ${where(to)}.`); }
+  const dbl = doubleBooked(empId, to, fromId);
+  if (dbl) { render(); return toast(`${empName(empId)} is already working ${where(dbl)} then. They can't be in two places at once.`); }
+  if (!okConflicts([[empId, to]])) return render();
+  if (fromId) s.draft[fromId] = (s.draft[fromId] || []).filter(x => x !== empId);
+  s.draft[toId].push(empId);
+  touched(); render();
+  const n = s.draft[toId].filter(emp).length;
+  toast(n > to.needed ? `${empName(empId)} moved to ${where(to)}. It now has ${n} people (needs ${to.needed}).` : `${empName(empId)} moved to ${where(to)}.`);
+}
+function forceSwap(aEmp, aShift, bEmp, bShift) {
+  if (aShift === bShift) return render();
+  const s = sched(), A = shiftById(aShift), B = shiftById(bShift);
+  if ((s.draft[bShift] || []).includes(aEmp) || (s.draft[aShift] || []).includes(bEmp)) { render(); return toast('They’re already on each other’s shift.'); }
+  const d1 = doubleBooked(aEmp, B, aShift), d2 = doubleBooked(bEmp, A, bShift);
+  if (d1 || d2) { render(); return toast(`${empName(d1 ? aEmp : bEmp)} is already working ${where(d1 || d2)} then.`); }
+  if (!okConflicts([[aEmp, B], [bEmp, A]])) return render();
+  s.draft[aShift] = s.draft[aShift].map(x => x === aEmp ? bEmp : x);
+  s.draft[bShift] = s.draft[bShift].map(x => x === bEmp ? aEmp : x);
+  touched(); render();
+  toast(`Swapped ${empName(aEmp)} and ${empName(bEmp)}.`);
+}
+
+/* Pointer-based dragging for move mode: works with a mouse, a finger or a pen. */
+const pdrag = { el: null, ghost: null, empId: null, shiftId: null, x: 0, y: 0, started: false, over: null };
+function dropTargetAt(x, y) {
+  const t = document.elementFromPoint(x, y);
+  if (!t) return null;
+  const chip = t.closest('.moving .chip[data-emp]');
+  const block = t.closest('.moving [data-drop]') || (t.closest('.moving .cell') || { querySelector: () => null }).querySelector('[data-drop]');
+  return block ? { chip, block } : null;
+}
+document.addEventListener('pointerdown', ev => {
+  if (!ui.moveMode || ev.button > 0) return;
+  const el = ev.target.closest('.moving .chip[data-emp]');
+  if (!el) return;
+  ev.preventDefault();
+  Object.assign(pdrag, { el, empId: el.dataset.emp, shiftId: el.dataset.shift, x: ev.clientX, y: ev.clientY, started: false, over: null });
+});
+document.addEventListener('pointermove', ev => {
+  if (!pdrag.el) return;
+  if (!pdrag.started) {
+    if (Math.hypot(ev.clientX - pdrag.x, ev.clientY - pdrag.y) < 4) return;
+    pdrag.started = true;
+    pdrag.ghost = pdrag.el.cloneNode(true);
+    pdrag.ghost.className = 'chip drag-ghost';
+    pdrag.ghost.style.width = pdrag.el.offsetWidth + 'px';
+    document.body.appendChild(pdrag.ghost);
+    pdrag.el.classList.add('dragging');
+    document.body.classList.add('is-dragging');
+  }
+  pdrag.ghost.style.left = ev.clientX + 'px';
+  pdrag.ghost.style.top = ev.clientY + 'px';
+  const tgt = dropTargetAt(ev.clientX, ev.clientY);
+  const cell = tgt ? tgt.block.closest('.cell') : null;
+  const chip = tgt && tgt.chip && tgt.chip !== pdrag.el ? tgt.chip : null;
+  document.querySelectorAll('.drop-hover,.swap-hover').forEach(x => { if (x !== cell && x !== chip) x.classList.remove('drop-hover', 'swap-hover'); });
+  if (chip) chip.classList.add('swap-hover'); else if (cell) cell.classList.add('drop-hover');
+  // nudge the page when dragging near the top or bottom edge
+  const edge = 70;
+  if (ev.clientY < edge) window.scrollBy(0, -12); else if (ev.clientY > window.innerHeight - edge) window.scrollBy(0, 12);
+});
+function endPointerDrag(ev, cancel) {
+  if (!pdrag.el) return;
+  const d = { ...pdrag };
+  if (pdrag.ghost) pdrag.ghost.remove();
+  document.body.classList.remove('is-dragging');
+  document.querySelectorAll('.drop-hover,.swap-hover,.dragging').forEach(x => x.classList.remove('drop-hover', 'swap-hover', 'dragging'));
+  Object.assign(pdrag, { el: null, ghost: null, started: false });
+  if (cancel || !d.started) return;
+  const tgt = dropTargetAt(ev.clientX, ev.clientY);
+  if (!tgt) return toast('Dropped outside the schedule. Nothing changed.');
+  if (tgt.chip && tgt.chip.dataset.emp && !(tgt.chip.dataset.emp === d.empId && tgt.chip.dataset.shift === d.shiftId) && tgt.chip.dataset.shift !== d.shiftId)
+    return forceSwap(d.empId, d.shiftId, tgt.chip.dataset.emp, tgt.chip.dataset.shift);
+  forceMove(d.empId, d.shiftId, tgt.block.dataset.drop);
+}
+document.addEventListener('pointerup', ev => endPointerDrag(ev, false));
+document.addEventListener('pointercancel', ev => endPointerDrag(ev, true));
+
 /* ---------- toast ---------- */
 let toastT;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3400); }
@@ -1152,7 +1259,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
 const A = {
   login: el => { S.session = el.dataset.id; ui.sel = null; ui.mtab = 'schedule'; ui.etab = 'home'; save(); render(); window.scrollTo(0, 0); },
   logout: () => { S.session = null; save(); render(); },
-  mtab: el => { ui.mtab = el.dataset.k; ui.sel = null; render(); },
+  mtab: el => { ui.mtab = el.dataset.k; ui.sel = null; ui.moveMode = false; render(); },
   etab: el => { ui.etab = el.dataset.k; render(); },
   close: () => closeModal(),
   overlay: (el, ev) => { if (ev.target === el) closeModal(); },
@@ -1176,25 +1283,27 @@ const A = {
     if (s && !confirm('Regenerate? This replaces the current draft, including any changes you made by hand.')) return;
     const asg = generate();
     S.schedules[S.week] = { draft: asg, published: s ? s.published : null, dirty: !!(s && s.published) };
-    ui.mtab = 'schedule'; ui.sel = null; save(); render();
+    ui.mtab = 'schedule'; ui.sel = null; ui.moveMode = false; save(); render();
     const a = analyze();
     const n = a.late.length + a.openSpots + a.pending.length;
     toast(n ? `Draft ready. ${n} item${n > 1 ? 's' : ''} flagged at the top (also emailed to you).` : 'Draft ready. Nothing flagged!');
   },
   publish: () => {
     const a = analyze();
-    if (a.violations.length) return toast('Fix the conflict clashes (in red) before publishing.');
     const left = a.late.length;
     let msg = [];
+    if (a.violations.length) msg.push(`${a.violations.length} person${a.violations.length > 1 ? 's' : ''} scheduled during a conflict on record (${[...new Set(a.violations.map(v => empName(v.id)))].join(', ')})`);
     if (a.openSpots) msg.push(`${a.openSpots} open spot${a.openSpots > 1 ? 's' : ''}`);
     if (left) msg.push(`${left} late conflict${left > 1 ? 's' : ''} not handled`);
-    if (msg.length && !confirm(`Publish with ${msg.join(' and ')}?`)) return;
+    const note = a.violations.length ? '\n\nYou have the final say, but they told you they can’t work then.' : '';
+    if (msg.length && !confirm(`Publish with ${msg.join(' and ')}?${note}`)) return;
     const s = sched();
     s.published = { shifts: clone(weekShifts()), asg: clone(s.draft), at: Date.now() };
     s.dirty = false; save(); render();
     toast(`Published! ${S.employees.length} employees notified and emailed.`);
   },
   chip: el => {
+    if (ui.moveMode) return; // move mode uses drag and drop instead of taps
     const { shift, emp: id } = el.dataset;
     if (ui.sel && !(ui.sel.shiftId === shift && ui.sel.empId === id)) return swap(ui.sel.empId, ui.sel.shiftId, id, shift);
     ui.sel = ui.sel ? null : { shiftId: shift, empId: id };
@@ -1213,6 +1322,8 @@ const A = {
     ui.sel = null; touched(); render();
   },
   cancelsel: () => { ui.sel = null; render(); },
+  movemode: () => { ui.sel = null; ui.moveMode = true; render(); toast('Move mode on. Drag any name to any spot.'); },
+  movedone: () => { ui.moveMode = false; render(); },
   fixviolation: el => { const s = sched(); s.draft[el.dataset.shift] = s.draft[el.dataset.shift].filter(x => x !== el.dataset.emp); touched(); render(); },
 
   /* manager: conflicts */
@@ -1296,7 +1407,7 @@ document.addEventListener('click', ev => {
 });
 
 document.addEventListener('keydown', ev => {
-  if (ev.key === 'Escape') { if ($('#modal').innerHTML) closeModal(); else if (ui.sel) { ui.sel = null; render(); } }
+  if (ev.key === 'Escape') { if ($('#modal').innerHTML) closeModal(); else if (ui.moveMode) { ui.moveMode = false; render(); } else if (ui.sel) { ui.sel = null; render(); } }
 });
 
 document.addEventListener('change', ev => {
