@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftwise Ad</title>
+<style>
+@font-face{font-family:Brico;src:url(fonts/bricolage.woff2) format('woff2');font-weight:200 800;font-display:block}
+@font-face{font-family:Caveat;src:url(fonts/caveat.woff2) format('woff2');font-weight:400 700;font-display:block}
+:root{--navy:#1B2A41;--amber:#FFB627;--ink:#0F1A2B;--cream:#F4EFE6;--red:#D2453B;--muted:#8C96A6}
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1080px;overflow:hidden;background:var(--navy);
+  font-family:Brico,sans-serif;transform-origin:0 0}
+.scene{position:absolute;inset:0;display:none}
+.scene>svg{position:absolute;left:0;top:0}
+.cap{position:absolute;white-space:nowrap;font-weight:780;font-size:58px;line-height:1.02;letter-spacing:-.015em;
+  padding:16px 26px 22px;background:var(--amber);color:var(--navy);display:none}
+.cap.dark{background:var(--navy);color:var(--cream)}
+.cap.darkamber{background:var(--navy);color:var(--amber)}
+.cap.whisper{background:var(--ink);color:var(--cream);font-weight:500;font-size:46px;font-style:normal;letter-spacing:.01em}
+.cap.big{font-size:72px}
+/* monitor UI */
+#ui{position:absolute;left:416px;top:246px;width:608px;height:400px;background:#F7F4EE;overflow:hidden;font-family:Brico}
+.bar{position:absolute;left:0;top:0;right:0;height:46px;background:var(--navy);color:var(--cream);display:flex;align-items:center;
+  padding:0 14px;gap:9px;font-weight:760;font-size:21px;letter-spacing:-.01em}
+.bar .wk{margin-left:auto;font-weight:500;font-size:15px;color:#AEB7C6}
+.pill{position:absolute;top:56px;height:30px;border-radius:15px;font-size:15px;font-weight:700;display:flex;align-items:center;
+  gap:7px;padding:0 13px;box-sizing:border-box}
+.dayh{position:absolute;top:98px;width:74px;text-align:center;font-size:13px;font-weight:700;color:var(--navy);letter-spacing:.04em}
+.rowh{position:absolute;left:10px;font-size:13px;font-weight:700;color:var(--muted)}
+.cell{position:absolute;width:70px;height:104px;border-radius:8px;border:1.5px dashed #C9CED6;box-sizing:border-box}
+.chip{position:absolute;left:5px;width:58px;height:26px;border-radius:6px;background:var(--navy);color:var(--cream);font-size:12.5px;
+  font-weight:650;display:flex;align-items:center;justify-content:center}
+.chip.open{background:transparent;color:#B07A00;border:1.5px dashed var(--amber);box-sizing:border-box}
+.btn{position:absolute;top:352px;height:36px;border-radius:9px;font-size:15px;font-weight:750;display:flex;align-items:center;
+  justify-content:center;gap:6px}
+/* phone */
+#phone{position:absolute;left:540px;top:110px;width:400px;height:830px;border-radius:58px;background:var(--ink)}
+#screen{position:absolute;left:14px;top:14px;width:372px;height:802px;border-radius:46px;background:#F7F4EE;overflow:hidden}
+#screen .top{position:absolute;left:0;top:0;right:0;height:96px;background:var(--navy);display:flex;align-items:flex-end;
+  padding:0 26px 16px;box-sizing:border-box;gap:10px;color:var(--cream);font-weight:760;font-size:26px;letter-spacing:-.01em}
+.lab{position:absolute;left:24px;font-size:18px;font-weight:650;color:var(--muted)}
+.field{position:absolute;left:24px;width:324px;height:58px;border-radius:14px;background:#fff;border:2px solid #DDD8CE;box-sizing:border-box;
+  display:flex;align-items:center;padding:0 16px;font-size:23px;font-weight:600;color:var(--navy)}
+.row{position:absolute;left:24px;width:324px;height:58px;display:flex;align-items:center;font-size:23px;font-weight:650;color:var(--navy)}
+.tog{position:absolute;right:0;top:9px;width:72px;height:40px;border-radius:20px;background:#D5D9DF}
+.tog i{position:absolute;left:4px;top:4px;width:32px;height:32px;border-radius:16px;background:#fff}
+#submit{position:absolute;left:24px;top:690px;width:324px;height:70px;border-radius:18px;background:var(--navy);color:var(--cream);
+  font-size:27px;font-weight:760;display:flex;align-items:center;justify-content:center;transform-origin:50% 50%}
+#sheet{position:absolute;left:0;right:0;bottom:0;height:380px;background:var(--cream);border-radius:34px 34px 0 0;border-top:3px solid var(--navy)}
+#finger{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:22px;background:rgba(15,26,43,.28)}
+#ring{position:absolute;border-radius:50%;border:4px solid var(--navy);box-sizing:border-box}
+/* wedding band */
+#band{position:absolute;left:0;right:0;bottom:0;height:250px;background:var(--navy)}
+/* logo */
+#word{position:absolute;left:0;top:520px;width:1080px;text-align:center;font-weight:800;font-size:150px;letter-spacing:-.035em;color:var(--cream);line-height:1}
+#word span{display:inline-block;transform-origin:50% 50%}
+#tag{position:absolute;left:0;top:700px;width:1080px;text-align:center;font-weight:600;font-size:50px;color:var(--amber);letter-spacing:-.01em}
+#uline{position:absolute;top:800px;height:12px;left:540px;width:0;background:var(--amber)}
+/* preview player (not used while rendering) */
+#play{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font:700 22px Brico,sans-serif;padding:16px 28px;border:0;border-radius:12px;
+  background:var(--amber);color:var(--navy);cursor:pointer;display:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="scene" id="office"></div>
+  <div class="scene" id="wed"></div>
+  <div class="scene" id="phonesc"></div>
+  <div class="scene" id="logo"></div>
+</div>
+<button id="play">Play ad</button>
+<audio id="music" src="music.wav" preload="auto"></audio>
+<script src="timing.js"></script>
+<script>
+"use strict";
+const C = {navy:'#1B2A41', amber:'#FFB627', ink:'#0F1A2B', cream:'#F4EFE6', red:'#D2453B', amberDk:'#D99413'};
+const $ = id => document.getElementById(id);
+const clamp = (x,a,b) => Math.max(a, Math.min(b, x));
+const lerp = (a,b,p) => a + (b-a)*p;
+const lin = p => p, eo = p => 1-Math.pow(1-p,3), ei = p => p*p,
+      eio = p => p<.5 ? 4*p*p*p : 1-Math.pow(-2*p+2,3)/2;
+const P = (t,a,b,e=lin) => e(clamp((t-a)/(b-a),0,1));
+const on = (t,a,b) => t>=a && t<b;
+const show = (el,v,d='block') => { el.style.display = v ? d : 'none'; };
+const attr = (el,k,v) => el.setAttribute(k,v);
+
+// S-shaped "two shifts" logo mark
+function mark(size, bg=C.amber, fg=C.navy, id='') {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="display:block;flex:none">
+    <rect width="100" height="100" rx="24" fill="${bg}"/>
+    <path ${id?`id="${id}"`:''} d="M72 30 H40 a10 10 0 0 0 0 20 H60 a10 10 0 0 1 0 20 H28" fill="none" stroke="${fg}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+/* ------------------------------------------------------------ people
+   Feet at (0,0). Parts get ids so seek() can pose them. */
+function person(id, c) {
+  const arm = side => `<g id="${id}-arm${side}" transform="translate(${side==='L'?-78:78},-300)">
+      <rect x="-18" y="0" width="36" height="170" rx="18" fill="${c.armColor||c.shirt}"/>
+      <circle cy="168" r="20" fill="${c.skin}"/></g>`;
+  const eyes = [-1,1].map((s,i)=>`
+      <circle id="${id}-ew${i}" cx="${s*24}" cy="-405" r="14" fill="#fff"/>
+      <circle id="${id}-ep${i}" cx="${s*24}" cy="-405" r="7" fill="${C.ink}"/>
+      <rect id="${id}-lid${i}" x="${s*24-16}" y="-421" width="32" height="16" fill="${c.skin}" style="display:none"/>`).join('');
+  const body = c.bodyPath ? `<path d="${c.bodyPath}" fill="${c.shirt}"/>`
+    : `<rect x="-55" y="-120" width="110" height="120" rx="14" fill="${c.pants}"/>
+       <rect x="-88" y="-330" width="176" height="230" rx="70" fill="${c.shirt}"/>`;
+  return `<g id="${id}"><g id="${id}-in">
+    ${c.back||''}${arm('L')}${arm('R')}${body}${c.extra||''}
+    <circle cy="-400" r="64" fill="${c.skin}"/>${c.hair||''}${eyes}
+    <path id="${id}-mouth" d="" fill="none" stroke="${C.ink}" stroke-width="5" stroke-linecap="round"/>
+    ${c.front||''}</g></g>`;
+}
+const MOUTH = {
+  line:'M-14 -362 H14', o:'M-7 -362 a7 7 0 1 0 14 0 a7 7 0 1 0 -14 0', O:'M-14 -360 a14 16 0 1 0 28 0 a14 16 0 1 0 -28 0',
+  smile:'M-20 -370 Q0 -348 20 -370', awk:'M-20 -362 Q-8 -370 4 -360 T20 -366', grin:'M-24 -372 Q0 -340 24 -372 Z'
+};
+function pose(id, o) {
+  if (o.at) attr($(id), 'transform', `translate(${o.at[0]},${o.at[1]}) scale(${o.s||1})`);
+  attr($(id+'-in'), 'transform', `rotate(${o.rot||0})`);
+  attr($(id+'-armL'), 'transform', `translate(-78,-300) rotate(${o.armL||8})`);
+  attr($(id+'-armR'), 'transform', `translate(78,-300) rotate(${o.armR||-8})`);
+  const [dx,dy] = o.look||[0,0], er = o.eye||14;
+  for (const i of [0,1]) {
+    const cx = (i?1:-1)*24;
+    attr($(`${id}-ew${i}`),'r',er);
+    attr($(`${id}-ep${i}`),'cx',cx+dx); attr($(`${id}-ep${i}`),'cy',-405+dy);
+    show($(`${id}-lid${i}`), !!o.lid);
+  }
+  const m = $(id+'-mouth'), k = o.mouth||'line';
+  attr(m,'d',MOUTH[k]); attr(m,'fill', (k==='o'||k==='O'||k==='grin') ? C.ink : 'none');
+}
+
+const HAIR_MGR = `<path d="M-66 -398 C-70 -488 70 -488 66 -398 C52 -440 -30 -446 -66 -398Z" fill="${C.ink}"/>`;
+const CAP = `<path d="M-63 -414 C-63 -484 63 -484 63 -414 Z" fill="${C.amber}"/><path d="M-63 -414 H-118 Q-112 -400 -63 -402Z" fill="${C.amberDk}"/>
+  <circle cx="10" cy="-446" r="9" fill="${C.navy}"/>`;
+const HAIR_SHORT = `<path d="M-64 -404 C-66 -480 66 -480 64 -404 C50 -436 -50 -436 -64 -404Z" fill="#2B1E1A"/>`;
+const SUIT = `<path d="M-32 -330 L0 -262 L32 -330Z" fill="#fff"/><path d="M-8 -324 H8 L12 -255 L0 -240 L-12 -255Z" fill="${C.amber}"/>`;
+const LANYARD = `<path d="M-40 -326 L0 -238 L40 -326" fill="none" stroke="${C.amber}" stroke-width="7"/>
+  <rect x="-22" y="-246" width="44" height="56" rx="6" fill="${C.cream}"/><rect x="-14" y="-232" width="28" height="6" rx="3" fill="${C.navy}"/>`;
+const PIZZABOX = `<g transform="translate(0,-170)"><rect x="-122" y="-22" width="244" height="44" rx="5" fill="${C.cream}" stroke="#D8CCB6" stroke-width="3"/>
+  <text x="0" y="12" text-anchor="middle" font-family="Brico" font-weight="800" font-size="28" fill="${C.navy}" letter-spacing="4">PIZZA</text></g>`;
+const SLICE = `<g transform="translate(-232,-392) rotate(-18)"><path d="M0 -6 L92 -34 L92 26Z" fill="${C.amber}"/>
+  <rect x="86" y="-38" width="18" height="68" rx="9" fill="${C.amberDk}"/><circle cx="56" cy="-8" r="9" fill="${C.red}"/><circle cx="72" cy="12" r="7" fill="${C.red}"/></g>`;
+
+/* ------------------------------------------------------------ OFFICE */
+const NOTES = [
+  {k:'n1', x:100,y:178,w:160,h:118,r:-5,f:C.amber, t:['Jordan:','no Tues']},
+  {k:'n2', x:290,y:168,w:170,h:118,r:3, f:C.cream, t:['Priya: every','other Wed??']},
+  {k:'n3', x:486,y:182,w:140,h:128,r:7, f:'#fff',  t:['NOT','TUES??'], big:1},
+  {k:'n4', x:96, y:352,w:150,h:114,r:4, f:C.cream, t:['Sam emailed?','find it!!']},
+  {k:'sh', x:268,y:326,w:204,h:170,r:-1,f:C.cream, sheet:1},
+  {k:'n5', x:492,y:356,w:140,h:114,r:-4,f:C.amber, t:['Dev:','mornings only']},
+  {k:'n6', x:108,y:500,w:156,h:106,r:-3,f:C.amber, t:['Lee off','14th? 15th?']},
+  {k:'n7', x:300,y:514,w:150,h:100,r:5, f:C.cream, t:['Kai wants','more hours']},
+  {k:'n8', x:482,y:506,w:146,h:104,r:-6,f:C.cream, t:['Ana: no','Sundays']},
+];
+const STRINGS = [['n1','n3'],['n2','sh'],['n3','n4'],['n1','n6'],['sh','n8'],['n5','n6'],['n2','n7'],['n4','n5'],['n3','n8']];
+function pinOf(n){ const cx=n.x+n.w/2, cy=n.y+n.h/2, py=-n.h/2+13, a=n.r*Math.PI/180;
+  return [cx - py*Math.sin(a), cy + py*Math.cos(a)]; }
+function noteSvg(n){
+  let inner;
+  if (n.sheet) {
+    const rows = [['FRI','Jordan, Dev'],['SAT','Marcus, Lee'],['SUN','Priya, Ana']];
+    inner = `<text x="0" y="${-n.h/2+44}" text-anchor="middle" font-family="Caveat" font-weight="700" font-size="30" fill="${C.navy}">WEEK 47</text>
+      <line x1="${-n.w/2+16}" x2="${n.w/2-16}" y1="${-n.h/2+54}" y2="${-n.h/2+54}" stroke="${C.navy}" stroke-width="2"/>`+
+      rows.map((r,i)=>`<text x="${-n.w/2+18}" y="${-n.h/2+86+i*30}" font-family="Caveat" font-weight="700" font-size="25" fill="${C.navy}">${r[0]}</text>
+        <text x="${-n.w/2+70}" y="${-n.h/2+86+i*30}" font-family="Caveat" font-weight="500" font-size="25" fill="${C.navy}">${r[1]}</text>`).join('')+
+      `<ellipse id="ofCircle" cx="${-n.w/2+100}" cy="${-n.h/2+108}" rx="92" ry="20" fill="none" stroke="${C.red}" stroke-width="4" transform="rotate(-3 ${-n.w/2+100} ${-n.h/2+108})"/>`;
+  } else {
+    const fs = n.big ? 37 : 31, lh = n.big ? 42 : 32, y0 = 8 - (n.t.length-1)*lh/2 + 8;
+    inner = n.t.map((s,i)=>`<text x="0" y="${y0+i*lh}" text-anchor="middle" font-family="Caveat" font-weight="${n.big?700:600}" font-size="${fs}" fill="${n.big?C.red:C.navy}">${s}</text>`).join('');
+  }
+  const shape = n.big
+    ? `<path d="M${-n.w/2} ${-n.h/2} h${n.w} l-6 ${n.h*.3} l6 ${n.h*.25} l-4 ${n.h*.45} h${-n.w} l5 ${-n.h*.4} l-5 ${-n.h*.3}Z" fill="${n.f}"/>`
+    : `<rect x="${-n.w/2}" y="${-n.h/2}" width="${n.w}" height="${n.h}" rx="${n.sheet?2:3}" fill="${n.f}"/>`;
+  return `<g transform="translate(${n.x+n.w/2},${n.y+n.h/2}) rotate(${n.r})">${shape}${inner}<circle cy="${-n.h/2+13}" r="7" fill="${C.red}"/></g>`;
+}
+function buildOffice(){
+  const byK = Object.fromEntries(NOTES.map(n=>[n.k,n]));
+  const strings = STRINGS.map(([a,b],i)=>{ const [x1,y1]=pinOf(byK[a]), [x2,y2]=pinOf(byK[b]);
+    return `<path id="str${i}" d="M${x1} ${y1} Q${(x1+x2)/2} ${(y1+y2)/2+30} ${x2} ${y2}" fill="none" stroke="${C.red}" stroke-width="3.5" stroke-linecap="round"/>`; }).join('');
+  $('office').innerHTML = `
+  <svg width="1080" height="1080" viewBox="0 0 1080 1080"><g id="ofCam">
+    <rect width="1080" height="1080" fill="${C.navy}"/>
+    <polygon id="ofPool" points="330,64 750,64 940,880 140,880" fill="#21334F"/>
+    <rect y="880" width="1080" height="200" fill="#142033"/><rect y="872" width="1080" height="10" fill="#2A3B55"/>
+    <rect x="320" y="30" width="440" height="36" rx="6" fill="#2A3B55"/>
+    <rect id="ofTube" x="336" y="44" width="408" height="14" rx="7" fill="#EFEBDD"/>
+    <g id="ofDoor">
+      <rect x="828" y="468" width="174" height="414" fill="${C.ink}"/>
+      <rect x="840" y="480" width="150" height="400" fill="#0A111D"/>
+      <clipPath id="doorClip"><rect x="840" y="300" width="150" height="580"/></clipPath>
+      <g clip-path="url(#doorClip)">${person('mk', {shirt:C.amber, pants:C.navy, skin:'#8A5A3C', hair:CAP,
+         extra:`<rect x="26" y="-300" width="40" height="16" rx="4" fill="${C.navy}"/>`})}</g>
+      <g id="ofPanel"><rect id="ofPanelR" x="840" y="480" width="150" height="400" fill="#2A3B55"/>
+        <circle id="ofKnob" cx="862" cy="690" r="9" fill="${C.amber}"/></g>
+    </g>
+    <g id="ofBoard">
+      <rect x="70" y="140" width="580" height="500" rx="8" fill="${C.ink}"/>
+      <rect x="82" y="152" width="556" height="476" fill="#3A4D6B"/>
+      ${NOTES.map(noteSvg).join('')}${strings}
+    </g>
+    <g id="ofDesk">
+      <rect x="690" y="676" width="60" height="150" fill="${C.ink}"/><rect x="630" y="808" width="180" height="18" rx="6" fill="${C.ink}"/>
+      <rect x="400" y="230" width="640" height="450" rx="14" fill="${C.ink}"/>
+    </g>
+    ${person('mg', {shirt:'#8DA2C0', pants:C.ink, skin:'#C98E6B', hair:HAIR_MGR, extra:LANYARD})}
+    ${person('mg2',{shirt:'#8DA2C0', pants:C.ink, skin:'#C98E6B', hair:HAIR_MGR, extra:LANYARD, front:SLICE})}
+    <g id="ofDeskFront"><rect y="830" width="1080" height="250" fill="#101B2C"/><rect y="822" width="1080" height="14" fill="#2A3B55"/></g>
+  </g></svg>
+  <div id="ui">
+    <div class="bar">${mark(26)}Shiftwise<span class="wk">Week 47</span></div>
+    <div class="pill" id="pill1" style="left:14px;background:${C.amber};color:${C.navy}">
+      <svg width="14" height="16" viewBox="0 0 14 16"><path d="M2 1 V15" stroke="${C.navy}" stroke-width="2.4"/><path d="M3 2 H12 L9.5 5.5 L12 9 H3Z" fill="${C.navy}"/></svg>1 late conflict</div>
+    <div class="pill" id="pill2" style="left:170px;border:2px solid ${C.amber};color:#9A6A00">1 open spot</div>
+    <div id="grid"></div>
+    <div class="btn" id="gen" style="left:316px;width:164px;background:${C.navy};color:${C.cream}">Generate schedule</div>
+    <div class="btn" id="pub" style="left:490px;width:104px;background:${C.amber};color:${C.navy}">Publish</div>
+  </div>
+  <svg width="1080" height="1080" style="position:absolute;left:0;top:0;pointer-events:none">
+    <g id="cursor"><path d="M0 0 L0 38 L10 29 L18 45 L26 41 L18 26 L32 26 Z" fill="${C.ink}" stroke="#fff" stroke-width="3" stroke-linejoin="round"/></g>
+  </svg>`;
+  // schedule grid: 7 days x 2 shifts, filled in column order
+  const days = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+  const S = [ [['Dev','Jordan','Kai'],['Marcus','Priya','Lee']], [['Dev','Sam','Ana'],['Kai','Marcus','Lee']],
+              [['Dev','Jordan','Lee'],['Ana','Sam','Kai']],   [['Dev','Priya','Kai'],['Jordan','Marcus','Sam']],
+              [['Dev','Ana','Lee'],['Jordan','Kai','Priya']], [['Dev','Sam','Priya'],['Jordan','Lee','Kai']],
+              [['Dev','Marcus','Priya'],['Sam','Kai','OPEN']] ];
+  let g = `<div class="rowh" style="top:168px">Lunch</div><div class="rowh" style="top:280px">Dinner</div>`;
+  days.forEach((d,i)=>{ const x = 76+i*75;
+    g += `<div class="dayh" style="left:${x-2}px">${d}</div>`;
+    S[i].forEach((names,j)=>{ const y = 122+j*112, k = i*2+j;
+      g += `<div class="cell" style="left:${x}px;top:${y}px"></div><div id="cell${k}" style="position:absolute;left:${x}px;top:${y}px;width:70px;height:104px;transform-origin:50% 0">`+
+        names.map((nm,m)=>`<div class="chip${nm==='OPEN'?' open':''}" style="top:${7+m*32}px">${nm==='OPEN'?'Open':nm}</div>`).join('')+`</div>`;
+    });
+  });
+  $('grid').innerHTML = g;
+}
+
+/* ------------------------------------------------------------ WEDDING */
+function buildWedding(){
+  const bulbs = (x0,y0,x1,y1,sag,n) => { let s=`<path d="M${x0} ${y0} Q${(x0+x1)/2} ${(y0+y1)/2+2*sag} ${x1} ${y1}" fill="none" stroke="${C.navy}" stroke-width="3"/>`;
+    for(let i=1;i<n;i++){ const u=i/n, cx=(x0+x1)/2, cy=(y0+y1)/2+2*sag;
+      const x=(1-u)*(1-u)*x0+2*(1-u)*u*cx+u*u*x1, y=(1-u)*(1-u)*y0+2*(1-u)*u*cy+u*u*y1;
+      s+=`<line x1="${x}" y1="${y}" x2="${x}" y2="${y+12}" stroke="${C.navy}" stroke-width="3"/><circle cx="${x}" cy="${y+20}" r="10" fill="${i%3?C.amber:C.cream}"/>`; }
+    return s; };
+  let floor=''; for(let r=0;r<3;r++) for(let c=0;c<14;c++)
+    floor+=`<rect x="${c*80-20}" y="${880+r*70}" width="80" height="70" fill="${(r+c)%2?C.navy:C.cream}"/>`;
+  const bride = {shirt:'#fff', skin:'#E2B48C', armColor:'#E2B48C',
+    bodyPath:'M-58 -332 Q0 -350 58 -332 L70 -230 L138 0 H-138 L-70 -230Z',
+    back:`<path d="M-20 -470 L-120 -150 Q0 -130 110 -170 L30 -470Z" fill="#fff" opacity=".6"/>`,
+    hair:`<path d="M-66 -400 C-70 -486 70 -486 66 -400 C48 -446 -48 -446 -66 -400Z" fill="#3A2A22"/><circle cy="-470" r="26" fill="#3A2A22"/>`,
+    front:`<g transform="translate(0,-210)"><circle cx="-18" r="20" fill="${C.amber}"/><circle cx="16" cy="-6" r="18" fill="${C.cream}"/><circle cx="4" cy="14" r="17" fill="${C.amber}"/></g>`};
+  const guest = (id,skin,hair) => person(id,{shirt:'#6B7688', pants:'#4A5465', skin, hair, extra:SUIT});
+  $('wed').innerHTML = `
+  <svg width="1080" height="1080" viewBox="0 0 1080 1080">
+    <rect width="1080" height="1080" fill="#E9E1D3"/>
+    <rect y="860" width="1080" height="220" fill="#CDBFA6"/><rect y="852" width="1080" height="10" fill="#B9A988"/>
+    <g id="wdFloor">${floor}</g>
+    ${bulbs(-20,90,1100,110,70,15)}${bulbs(-20,190,1100,170,50,13)}
+    <g id="wdDoor"><rect x="52" y="372" width="276" height="496" fill="#D8CCB6"/><rect x="66" y="386" width="248" height="474" fill="${C.navy}"/>
+      <circle cx="120" cy="450" r="3" fill="${C.cream}"/><circle cx="250" cy="420" r="2.5" fill="${C.cream}"/><circle cx="200" cy="500" r="2" fill="${C.cream}"/></g>
+    <g id="wdCake"><rect x="796" y="700" width="200" height="160" fill="#fff"/><rect x="786" y="692" width="220" height="12" rx="4" fill="#fff"/>
+      <rect x="836" y="636" width="120" height="58" rx="4" fill="#fff"/><rect x="836" y="660" width="120" height="8" fill="${C.amber}"/>
+      <rect x="856" y="592" width="80" height="46" rx="4" fill="#fff"/><rect x="856" y="610" width="80" height="7" fill="${C.amber}"/>
+      <rect x="874" y="560" width="44" height="34" rx="4" fill="#fff"/><circle cx="896" cy="548" r="10" fill="${C.amber}"/></g>
+    ${guest('g1','#B9825C',HAIR_SHORT)}${guest('g2','#F0C9A0',`<path d="M-66 -400 C-70 -490 70 -490 66 -400 L66 -330 L50 -330 C52 -440 -52 -440 -50 -330 L-66 -330Z" fill="#7A4B2A"/>`)}
+    ${person('mw',{shirt:C.amber, pants:C.navy, skin:'#8A5A3C', hair:CAP, front:PIZZABOX})}
+    ${person('br', bride)}
+    ${person('ms',{shirt:C.navy, pants:C.ink, skin:'#8A5A3C', hair:HAIR_SHORT, extra:SUIT})}
+  </svg>
+  <div id="band"></div>`;
+}
+
+/* ------------------------------------------------------------ PHONE */
+function buildPhone(){
+  $('phonesc').innerHTML = `
+  <svg width="1080" height="1080" viewBox="0 0 1080 1080">
+    <rect width="1080" height="1080" fill="${C.amber}"/>
+    <rect x="-40" y="630" width="1160" height="300" rx="46" fill="#E9A11A"/>
+    <rect x="-40" y="850" width="1160" height="240" fill="#D48F0E"/>
+    <rect x="70" y="740" width="250" height="150" rx="34" fill="#F4C25A"/>
+    <rect x="660" y="900" width="200" height="200" rx="30" fill="#8A5A3C"/>
+    <rect x="640" y="1010" width="240" height="80" fill="${C.navy}"/>
+  </svg>
+  <div id="phone"><div id="screen">
+    <div class="top">${mark(38)}Shiftwise</div>
+    <div style="position:absolute;left:24px;top:116px;font-size:40px;font-weight:800;color:${C.navy};letter-spacing:-.02em">New conflict</div>
+    <div class="lab" style="top:174px">Date</div>
+    <div class="field" style="top:200px"><span id="dateV"></span></div>
+    <div class="row" style="top:278px">Whole day<div class="tog" id="tog1"><i></i></div></div>
+    <div class="row" style="top:348px">Repeats<div class="tog"><i></i></div></div>
+    <div class="lab" style="top:434px">Reason</div>
+    <div class="field" style="top:460px"><span id="reasonV"></span><span id="caret" style="display:inline-block;width:3px;height:28px;background:${C.navy};margin-left:2px"></span></div>
+    <div id="submit">Submit</div>
+    <div id="sheet">
+      <div style="position:absolute;left:50%;top:44px;margin-left:-48px;width:96px;height:96px;border-radius:48px;background:${C.amber}">
+        <svg width="96" height="96" viewBox="0 0 96 96"><path id="chk" d="M28 50 L42 63 L69 34" fill="none" stroke="${C.navy}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="position:absolute;left:0;right:0;top:162px;text-align:center;font-size:40px;font-weight:800;color:${C.navy};letter-spacing:-.02em">Submitted</div>
+      <div style="position:absolute;left:0;right:0;top:222px;text-align:center;font-size:23px;font-weight:600;color:var(--muted)">Add another?</div>
+      <div style="position:absolute;left:44px;top:276px;width:132px;height:56px;border-radius:14px;border:2.5px solid ${C.navy};box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:750;color:${C.navy}">Yes</div>
+      <div style="position:absolute;right:44px;top:276px;width:132px;height:56px;border-radius:14px;background:${C.navy};display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:750;color:${C.cream}">No</div>
+    </div>
+    <div id="ring"></div><div id="finger"></div>
+  </div></div>
+  <svg width="1080" height="1080" viewBox="0 0 1080 1080" style="position:absolute;left:0;top:0">
+    ${[520,578,636,694].map(y=>`<rect x="506" y="${y}" width="66" height="46" rx="23" fill="#8A5A3C"/>`).join('')}
+  </svg>`;
+}
+
+/* ------------------------------------------------------------ LOGO */
+function buildLogo(){
+  $('logo').innerHTML = `
+    <div id="lmark" style="position:absolute;left:440px;top:250px;width:200px;height:200px">${mark(200, C.amber, C.navy, 'lpath')}</div>
+    <div id="word"><span id="wordIn">Shiftwise</span></div>
+    <div id="tag">Hours of scheduling. Done in minutes.</div>
+    <div id="uline"></div>`;
+}
+
+/* ------------------------------------------------------------ captions
+   [text(br = line break), t0, t1, css position, class, parent scene]  (max six words each) */
+const CAPS = [
+  ['Jordan can’t do Tuesdays…',          0.5, 2.5,  {left:'40px',top:'930px'}, 'whisper', 'office'],
+  ['…unless every other Tuesday?',       2.5, 5.0,  {left:'40px',top:'930px'}, 'whisper', 'office'],
+  ['Got my email about Saturday?',       5.5, 7.0,  {right:'40px',top:'330px'}, '', 'office'],
+  ['My sister’s wedding.',               7.0, 8.0,  {right:'40px',top:'330px'}, '', 'office'],
+  ['…Marcus?',                          10.0, 11.5, {left:'650px',top:'250px'}, 'dark', 'wed'],
+  ['That’ll be $18.50.',                11.5, 13.0, {left:'60px',top:'250px'}, '', 'wed'],
+  ['Conflicts get lost.',               13.0, 15.0, {left:'60px',top:'860px'}, 'darkamber big', 'wed'],
+  ['Weekends get ruined.',              14.0, 15.0, {left:'60px',top:'950px'}, 'dark big', 'wed'],
+  ['Marcus adds<br>his conflict.',      15.25,19.0, {left:'50px',top:'170px',fontSize:'64px'}, 'dark big', 'phonesc'],
+  ['Your conflicts,<br>on record.',     18.0, 19.0, {left:'50px',top:'470px',fontSize:'64px'}, 'darkamber big', 'phonesc'],
+  ['Shiftwise builds the schedule.',    19.25,22.0, {left:'40px',top:'86px'}, '', 'office'],
+  ['Flags gaps. You decide.',           22.0, 25.0, {left:'40px',top:'86px'}, '', 'office'],
+  ['Your weekends, back.',              25.5, 27.0, {left:'0',top:'260px'}, 'dark big', 'wed'],
+];
+function buildCaps(){
+  CAPS.forEach((c,i)=>{ const d=document.createElement('div'); d.className='cap '+c[4]; d.id='cap'+i; d.innerHTML=c[0];
+    Object.assign(d.style,c[3]); $(c[5]).appendChild(d); });
+}
+// measure after fonts load: center or shrink anything that would leave the frame
+function fitText(){
+  CAPS.forEach((c,i)=>{ const d=$('cap'+i), sc=$(c[5]); sc.style.display='block'; d.style.display='block';
+    const max=1080-80, w=d.offsetWidth;
+    if (w>max) d.style.fontSize = (parseFloat(getComputedStyle(d).fontSize)*max/w)+'px';
+    if (c[3].left==='0') d.style.left = ((1080-d.offsetWidth)/2)+'px';
+    else if (d.offsetLeft + d.offsetWidth > 1040) d.style.left = (1040-d.offsetWidth)+'px';
+    d.style.display='none'; sc.style.display='none'; });
+  const s=$('logo'); s.style.display='block';
+  const wi=$('wordIn'), ww=wi.offsetWidth; if (ww>900) wi.style.fontSize=(150*900/ww)+'px';
+  s.style.display='none';
+}
+
+let LEN = {};
+function measurePaths(){
+  for(let i=0;i<STRINGS.length;i++) LEN['str'+i] = $('str'+i).getTotalLength();
+  LEN.ofCircle = 2*Math.PI*92; LEN.lpath = $('lpath').getTotalLength(); LEN.chk = 70;
+}
+function draw(id, p){ const el=$(id), L=LEN[id]; el.style.strokeDasharray=L; el.style.strokeDashoffset=L*(1-p); }
+
+/* ================================================================ seek(t) */
+const FLICKER = [[0.75,0.82],[2.1,2.16],[2.22,2.28],[6.4,6.47]];
+/* Song sync (timing.js, generated by mix.py). Animation is authored on a design clock;
+   anchors pin key design moments to real beats of the song, linear in between. */
+const ANCH = window.TIMING.anchors, BEATS = window.TIMING.beats;
+function interp(x, xs, ys){ for(let i=1;i<xs.length;i++) if(x<=xs[i]) return lerp(ys[i-1],ys[i],(x-xs[i-1])/(xs[i]-xs[i-1])); return ys[ys.length-1]; }
+const toDesign = r => interp(r, ANCH.map(a=>a[1]), ANCH.map(a=>a[0]));
+const toReal   = d => interp(d, ANCH.map(a=>a[0]), ANCH.map(a=>a[1]));
+// beat position in the song: integer part = beat index, fraction = progress to the next beat
+function beatPos(r){ let k=0; while(k+1<BEATS.length && BEATS[k+1]<=r) k++;
+  const nxt = BEATS[k+1] ?? BEATS[k]+0.6; return k + clamp((r-BEATS[k])/(nxt-BEATS[k]),0,1); }
+let RT = 0; // real (song) time of the current frame
+function seek(tr){
+  RT = tr; const t = toDesign(tr);
+  const office = on(t,0,9)||on(t,19,25), wed = on(t,9,15)||on(t,25,27), ph = on(t,15,19), logo = t>=27;
+  show($('office'),office); show($('wed'),wed); show($('phonesc'),ph); show($('logo'),logo);
+  // record-scratch smash cut: frame jumps sideways for 2 frames
+  $('wed').style.left = on(t,9,9+2/60) ? '36px' : '0px';
+
+  CAPS.forEach((c,i)=>{ const el=$('cap'+i), v=on(t,c[1],c[2]); show(el,v);
+    if(v) el.style.clipPath=`inset(0 ${100*(1-P(t,c[1],c[1]+0.16,eo))}% 0 0)`; });
+
+  if (office) seekOffice(t);
+  if (wed) seekWedding(t);
+  if (ph) seekPhone(t);
+  if (logo) seekLogo(t);
+}
+
+function seekOffice(t){
+  const part2 = t>=19;
+  const flick = !part2 && FLICKER.some(([a,b])=>on(t,a,b));
+  $('ofTube').style.opacity = flick ? .3 : 1; show($('ofPool'), !flick);
+  show($('ofDesk'),part2); show($('ofDeskFront'),part2); show($('ui'),part2); show($('cursor'),part2);
+  show($('mg'),!part2); show($('mg2'),part2); show($('mk'),!part2);
+
+  // camera: push in on the posted schedule at 8.0
+  const z = part2 ? 0 : P(t,8.0,8.75,eio), cx=lerp(540,370,z), cy=lerp(540,412,z), s=lerp(1,2.35,z);
+  attr($('ofCam'),'transform',`translate(540 540) scale(${s}) translate(${-cx} ${-cy})`);
+
+  // red string draws on, one strand per half beat
+  STRINGS.forEach((_,i)=>draw('str'+i, part2 ? 1 : P(RT,BEATS[i],BEATS[i]+0.3,eo)));
+  draw('ofCircle', part2 ? 0 : P(t,8.4,8.9,eo));
+
+  // door opens on the beat at 5.0, Marcus slides into the doorway
+  const dp = part2 ? 0 : P(t,5.0,5.35,eo), pw = lerp(150,22,dp);
+  attr($('ofPanelR'),'x',990-pw); attr($('ofPanelR'),'width',pw); attr($('ofKnob'),'cx',lerp(862,975,dp));
+  show($('ofKnob'), dp<.6);
+  const mx = lerp(1110, 918, P(t,5.1,5.5,eo));
+  pose('mk',{at:[mx,882], s:.95, rot:-5, look:t<8?[-6,0]:[-6,-2], eye:t>=7.5?16:14, mouth:t<7?'smile':'awk', armL:10, armR:-6});
+
+  if (!part2) {
+    const b = Math.floor(beatPos(RT)), stepP = P(RT-BEATS[b],0,0.12,eo);
+    const looks=[[-7,-4],[-7,3],[-3,-6],[-7,0],[-5,4],[-7,-5],[-2,-6],[-7,2],[-6,-3],[-7,4]];
+    const arms=[118,140,126,148,112,136,122,144,116,138];
+    const prev = Math.max(0,b-1);
+    let look=[lerp(looks[prev%10][0],looks[b%10][0],stepP), lerp(looks[prev%10][1],looks[b%10][1],stepP)];
+    let armL = lerp(arms[prev%10],arms[b%10],stepP), eye=16, mouth = on(t,0.5,5)?'o':'line';
+    if (t>=5) { armL = lerp(130,10,P(t,5,5.25,eo)); look=[6,-1]; mouth='line'; eye=16; }
+    if (t>=7) { eye = 18; mouth='line'; }
+    if (t>=8) { look=[-7,-3]; mouth='O'; eye=18; }
+    pose('mg',{at:[730,900], armL, armR:-8, look, eye, mouth});
+  } else {
+    pose('mg2',{at:[300,1000], armL:122, armR:-10, look:[6,1], lid:true, mouth:'smile'});
+    // the conspiracy board gives up and falls, hitting the floor on the beat at 24.5
+    const f = P(t,23.5,24.5,ei);
+    attr($('ofBoard'),'transform',`translate(0 ${560*f}) rotate(${-12*f} 360 640)`);
+  }
+  if (!part2) attr($('ofBoard'),'transform','');
+
+  if (part2) seekUI(t);
+}
+
+function seekUI(t){
+  for(let k=0;k<14;k++){ const a=20+k*0.125, p=P(t,a,a+0.12,eo), el=$('cell'+k);
+    el.style.visibility = t>=a ? 'visible':'hidden'; el.style.transform=`scale(${lerp(.7,1,p)})`; }
+  [['pill1',22.0],['pill2',22.125]].forEach(([id,a])=>{ const el=$(id); el.style.visibility=t>=a?'visible':'hidden';
+    el.style.clipPath=`inset(0 ${100*(1-P(t,a,a+0.15,eo))}% 0 0)`; });
+  const gen=$('gen'); const genDone=t>=20;
+  gen.style.background = genDone ? '#C9CED6' : C.navy; gen.style.color = genDone ? '#6B7585' : C.cream;
+  gen.style.transform = on(t,20,20.1) ? 'scale(.95)' : 'none';
+  const pub=$('pub'), pubDone=t>=23;
+  pub.innerHTML = pubDone ? `<svg width="16" height="14" viewBox="0 0 16 14"><path d="M2 7 L6 11 L14 2" fill="none" stroke="${C.cream}" stroke-width="3" stroke-linecap="round"/></svg>Published` : 'Publish';
+  pub.style.background = pubDone ? C.navy : C.amber; pub.style.color = pubDone ? C.cream : C.navy;
+  pub.style.left = pubDone ? '470px' : '490px'; pub.style.width = pubDone ? '124px' : '104px';
+  pub.style.transform = on(t,23,23.1) ? 'scale(.95)' : 'none';
+  // cursor path: in -> Generate -> Publish -> out
+  const G=[814,616], B=[958,616];
+  let x,y;
+  if (t<20) { const p=P(t,19.1,19.8,eio); x=lerp(760,G[0],p); y=lerp(960,G[1],p); }
+  else if (t<23) { const p=P(t,21.9,22.7,eio); x=lerp(G[0],B[0],p); y=lerp(G[1],B[1],p); }
+  else { const p=P(t,23.4,24.2,eio); x=lerp(B[0],1120,p); y=lerp(B[1],900,p); }
+  const cs = (on(t,20,20.1)||on(t,23,23.1)) ? .85 : 1;
+  attr($('cursor'),'transform',`translate(${x} ${y}) scale(${1.25*cs})`);
+}
+
+function tri(u){ const f=u-Math.floor(u); return f<.5 ? 4*f-1 : 3-4*f; } // linear zigzag -1..1
+function seekWedding(t){
+  const part2 = t>=25;
+  show($('wdDoor'),true); show($('wdFloor'),part2); show($('wdCake'),!part2); show($('band'),!part2 && t>=13);
+  show($('mw'),!part2); show($('ms'),part2);
+  pose('g1',{at:[470,826], s:.74, look:t>=9.5?[-7,1]:[0,0], mouth:'line'});
+  pose('g2',{at:[600,826], s:.74, look:t>=9.75?[-7,1]:[0,0], mouth:t>=10?'O':'line', eye:t>=10?16:14});
+  if (!part2) {
+    pose('mw',{at:[190,866], armL:22, armR:-22, look:[6,0], mouth:t<11.5?'grin':'awk', eye:14});
+    pose('br',{at:[730,866], armL:12, armR:-12, look:t>=9.5?[-7,0]:[0,0], eye:t>=10?17:14,
+      mouth:t>=10&&t<11.5?'O':'line', lid:t>=12.25});
+    $('band').style.transform = `translateY(${100*(1-P(t,13,13.25,eo))}%)`;
+  } else {
+    // Marcus dances badly: linear rocking, a little behind the beat. The bride is on it.
+    const um = beatPos(RT-0.08)/2, ub = beatPos(RT)/2;  // one rock per two song beats
+    pose('ms',{at:[520,872], rot:8*tri(um), armL:155+15*tri(um*2), armR:-155-15*tri(um*2+.3), look:[5,-2], mouth:'grin'});
+    pose('br',{at:[780,872], rot:-5*tri(ub), armL:30, armR:-150, look:[-6,-1], mouth:'smile'});
+  }
+}
+
+function seekPhone(t){
+  const set=(id,css)=>Object.assign($(id).style,css);
+  $('dateV').textContent = t>=15.5 ? 'Sat, Nov 21' : '';
+  $('dateV').style.color = C.navy;
+  if (t<15.5) { $('dateV').textContent='Pick a date'; $('dateV').style.color='#A3A9B3'; }
+  const tp = P(t,16.0,16.15,eo);
+  set('tog1',{background: t>=16.0 ? C.amber : '#D5D9DF'}); $('tog1').firstElementChild.style.left = lerp(4,36,tp)+'px';
+  const txt="Sister's wedding", n = Math.floor(clamp((t-16.5)/1.0,0,1)*txt.length);
+  $('reasonV').textContent = txt.slice(0,n).replace("'", '’');
+  show($('caret'), on(t,16.5,18.0) && (Math.floor(t*4)%2===0 || t<17.5), 'inline-block');
+  set('submit',{transform: on(t,18.0,18.1)?'scale(.96)':'none', background: on(t,18.0,18.1)?C.ink:C.navy});
+  set('sheet',{transform:`translateY(${100*(1-P(t,18.05,18.35,eo))}%)`}); draw('chk', P(t,18.25,18.5,eo));
+  // finger: date -> toggle -> reason -> submit
+  const T=[[15.0,[250,700]],[15.5,[186,229]],[16.0,[312,307]],[16.5,[186,489]],[18.0,[186,725]]];
+  let pos=T[0][1];
+  for(let i=1;i<T.length;i++){ const [a,p1]=T[i], p0=T[i-1][1]; if(t>=a-0.3){ const q=P(t,a-0.3,a,eio); pos=[lerp(p0[0],p1[0],q),lerp(p0[1],p1[1],q)]; } }
+  if (t>=18.15) { const q=P(t,18.15,18.5,eio); pos=[lerp(186,330,q),lerp(725,900,q)]; }
+  set('finger',{left:pos[0]+'px',top:pos[1]+'px'});
+  const tap=[15.5,16.0,16.5,18.0].find(a=>on(t,a,a+0.3));
+  if (tap!==undefined){ const p=P(t,tap,tap+0.3,eo), d=lerp(20,90,p), tgt=T.find(x=>x[0]===tap)[1];
+    set('ring',{display:'block',width:d+'px',height:d+'px',left:(tgt[0]-d/2)+'px',top:(tgt[1]-d/2)+'px',opacity:1-p}); }
+  else set('ring',{display:'none'});
+}
+
+function seekLogo(t){
+  const mp=P(t,27,27.25,eo); $('lmark').style.transform=`scale(${lerp(.82,1,mp)})`;
+  draw('lpath', P(t,27.1,27.75,eo));
+  const w=$('word'); w.style.clipPath=`inset(0 ${100*(1-P(t,27.5,27.8,eo))}% 0 0)`;
+  const g=$('tag'); g.style.visibility=t>=28?'visible':'hidden'; g.style.clipPath=`inset(0 ${100*(1-P(t,28,28.3,eo))}% 0 0)`;
+  const u=$('uline'), uw=lerp(0,240,P(t,29,29.12)); u.style.width=uw+'px'; u.style.left=(540-uw/2)+'px';
+}
+
+/* ------------------------------------------------------------ boot */
+buildOffice(); buildWedding(); buildPhone(); buildLogo(); buildCaps();
+window.__ready = false;
+document.fonts.load('700 40px Brico').then(()=>document.fonts.load('600 30px Caveat')).then(()=>document.fonts.ready).then(()=>{
+  fitText(); measurePaths();
+  const q = new URLSearchParams(location.search);
+  if (q.has('render')) { window.seek = seek; window.toReal = toReal; seek(0); window.__ready = true; return; }
+  // preview: scale to the window and play with the music
+  const fit=()=>{ const k=Math.min(innerWidth,innerHeight)/1080; const st=$('stage');
+    st.style.transform=`scale(${k})`; st.style.left=((innerWidth-1080*k)/2)+'px'; st.style.top=((innerHeight-1080*k)/2)+'px'; };
+  fit(); addEventListener('resize',fit);
+  const still = q.get('t'); seek(still ? +still : 0);
+  if (still) return;
+  const m=$('music'), btn=$('play'); btn.style.display='block';
+  btn.onclick=()=>{ btn.style.display='none'; m.currentTime=0; m.play(); requestAnimationFrame(function loop(){ seek(Math.min(30,m.currentTime)); if(!m.ended) requestAnimationFrame(loop); else btn.style.display='block'; }); };
+});
+</script>
+</body>
+</html>

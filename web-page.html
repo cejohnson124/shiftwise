@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftwise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #16264a;
+    --navy-2: #22386a;
+    --navy-soft: #e8edf7;
+    --amber: #f5a623;
+    --amber-soft: #fff3dc;
+    --ink: #1c2436;
+    --muted: #5b6478;
+    --bg: #fbf8f2;
+    --card: #ffffff;
+    --radius: 22px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "Bricolage Grotesque", system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.55;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  .hand { font-family: "Caveat", cursive; color: var(--amber); font-weight: 700; }
+
+  /* Nav */
+  nav { padding: 20px 0; }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.4rem; color: var(--navy); text-decoration: none; }
+  .logo-mark { width: 36px; height: 36px; border-radius: 12px; background: var(--navy); display: grid; place-items: center; }
+  .logo-mark span { width: 14px; height: 14px; border-radius: 50%; background: var(--amber); }
+  .btn {
+    display: inline-block; text-decoration: none; font-weight: 600;
+    padding: 14px 26px; border-radius: 999px; border: 2px solid transparent;
+    transition: transform .15s ease, box-shadow .15s ease;
+    font-family: inherit; font-size: 1rem; cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-amber { background: var(--amber); color: var(--navy); box-shadow: 0 6px 0 #d48a0c; }
+  .btn-amber:hover { box-shadow: 0 8px 0 #d48a0c; }
+  .btn-ghost { border-color: var(--navy); color: var(--navy); background: transparent; }
+  .btn-small { padding: 10px 20px; }
+
+  /* Hero */
+  .hero { padding: 40px 0 80px; position: relative; overflow: hidden; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(2px); z-index: -1; }
+  .blob-1 { width: 420px; height: 420px; background: var(--amber-soft); right: -80px; top: -40px; }
+  .blob-2 { width: 260px; height: 260px; background: var(--navy-soft); left: -100px; bottom: -60px; }
+  .eyebrow { display: inline-block; background: var(--navy-soft); color: var(--navy); font-weight: 600; font-size: .9rem; padding: 6px 14px; border-radius: 999px; }
+  h1 { font-size: clamp(2.4rem, 5.5vw, 4rem); line-height: 1.05; margin: 18px 0 14px; color: var(--navy); font-weight: 800; letter-spacing: -0.02em; }
+  h1 .hand { font-size: 1.1em; display: inline-block; transform: rotate(-3deg); }
+  .sub { font-size: 1.25rem; color: var(--muted); margin: 0 0 30px; max-width: 32ch; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .trial-note { margin-top: 18px; font-size: 1.35rem; }
+
+  /* Schedule mockup */
+  .mock {
+    background: var(--card); border-radius: 28px; padding: 22px;
+    box-shadow: 0 30px 60px -20px rgba(22, 38, 74, .25);
+    transform: rotate(1.5deg); position: relative;
+  }
+  .mock-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .mock-head strong { color: var(--navy); }
+  .pill { font-size: .8rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: var(--amber-soft); color: #9a5f00; }
+  .grid { display: grid; grid-template-columns: 70px repeat(5, 1fr); gap: 6px; font-size: .8rem; }
+  .grid .day { text-align: center; font-weight: 600; color: var(--muted); padding-bottom: 4px; }
+  .grid .name { font-weight: 600; color: var(--navy); align-self: center; }
+  .slot { height: 34px; border-radius: 10px; background: #f2f3f7; }
+  .slot.am { background: var(--navy); }
+  .slot.pm { background: var(--navy-2); opacity: .55; }
+  .slot.lead { background: var(--amber); }
+  .slot.req { background: repeating-linear-gradient(45deg, #fff3dc, #fff3dc 5px, #fde3b0 5px, #fde3b0 10px); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 16px; font-size: .78rem; color: var(--muted); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 6px; vertical-align: -1px; }
+  .sticky {
+    position: absolute; left: -34px; bottom: -30px; background: var(--amber-soft);
+    border-radius: 16px; padding: 12px 16px; transform: rotate(-4deg);
+    box-shadow: 0 10px 24px -10px rgba(0,0,0,.25); font-family: "Caveat", cursive;
+    font-size: 1.35rem; color: var(--navy); line-height: 1.15; max-width: 200px;
+  }
+
+  /* Sections */
+  section { padding: 80px 0; }
+  .section-title { text-align: center; max-width: 640px; margin: 0 auto 48px; }
+  .section-title h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); color: var(--navy); margin: 8px 0 10px; line-height: 1.15; }
+  .section-title p { color: var(--muted); margin: 0; font-size: 1.1rem; }
+  .section-title .hand { font-size: 1.6rem; }
+
+  /* Ad video */
+  .ad { padding-top: 10px; }
+  .ad-frame {
+    max-width: 600px; margin: 0 auto; background: var(--navy); border-radius: 32px; padding: 14px;
+    box-shadow: 0 30px 60px -24px rgba(22, 38, 74, .45); position: relative;
+  }
+  .ad-frame video { display: block; width: 100%; aspect-ratio: 1 / 1; border-radius: 22px; background: var(--navy); }
+  .ad-note {
+    position: absolute; right: -28px; top: -26px; background: var(--amber); color: var(--navy);
+    font-family: "Caveat", cursive; font-weight: 700; font-size: 1.4rem; line-height: 1.1;
+    padding: 10px 16px; border-radius: 16px; transform: rotate(5deg); box-shadow: 0 10px 24px -10px rgba(0,0,0,.3);
+  }
+
+  /* Problem */
+  .quotes { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .quote { background: var(--card); border-radius: var(--radius); padding: 30px; position: relative; box-shadow: 0 12px 30px -18px rgba(22,38,74,.3); }
+  .quote::before { content: "\201C"; position: absolute; top: -18px; left: 22px; font-size: 5rem; line-height: 1; color: var(--amber); font-weight: 800; }
+  .quote p { font-size: 1.15rem; margin: 10px 0 18px; }
+  .who { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; }
+  .who small { color: var(--muted); display: block; }
+
+  /* How it works */
+  .how { background: var(--navy); color: #fff; border-radius: 40px; margin: 0 16px; }
+  .how .section-title h2 { color: #fff; }
+  .how .section-title p { color: #c3cbe0; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; counter-reset: step; }
+  .step { background: rgba(255,255,255,.07); border-radius: var(--radius); padding: 26px 22px; position: relative; }
+  .step-num { width: 44px; height: 44px; border-radius: 14px; background: var(--amber); color: var(--navy); display: grid; place-items: center; font-weight: 800; font-size: 1.2rem; margin-bottom: 16px; }
+  .step h3 { margin: 0 0 8px; font-size: 1.15rem; }
+  .step p { margin: 0; color: #c3cbe0; font-size: .97rem; }
+  .step .tag { display: inline-block; font-size: .75rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px; }
+
+  /* Benefits */
+  .benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .benefit { background: var(--card); border-radius: var(--radius); padding: 32px 28px; box-shadow: 0 12px 30px -18px rgba(22,38,74,.3); }
+  .icon { width: 56px; height: 56px; border-radius: 18px; background: var(--amber-soft); display: grid; place-items: center; margin-bottom: 18px; }
+  .icon svg { width: 28px; height: 28px; stroke: var(--navy); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .benefit h3 { margin: 0 0 8px; color: var(--navy); font-size: 1.3rem; }
+  .benefit p { margin: 0; color: var(--muted); }
+
+  /* Employee band */
+  .employee { padding: 0 0 80px; }
+  .employee-card {
+    background: var(--amber-soft); border: 2px dashed var(--amber); border-radius: 32px;
+    padding: 36px 40px; display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap;
+  }
+  .employee-card h3 { margin: 0 0 6px; color: var(--navy); font-size: 1.5rem; }
+  .employee-card p { margin: 0; color: var(--muted); max-width: 52ch; }
+  .employee-card .hand { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+
+  /* Demo */
+  .demo { background: var(--card); border-radius: 40px; margin: 0 16px 60px; box-shadow: 0 20px 50px -30px rgba(22,38,74,.35); }
+  .demo .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .demo h2 { font-size: clamp(1.9rem, 4vw, 2.6rem); color: var(--navy); margin: 0 0 12px; line-height: 1.15; }
+  .demo p { color: var(--muted); font-size: 1.1rem; }
+  .perks { list-style: none; padding: 0; margin: 20px 0 0; }
+  .perks li { padding-left: 32px; position: relative; margin-bottom: 10px; }
+  .perks li::before { content: ""; position: absolute; left: 0; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: var(--amber); }
+  form { background: var(--bg); border-radius: var(--radius); padding: 28px; display: grid; gap: 14px; }
+  label { font-weight: 600; font-size: .9rem; color: var(--navy); display: grid; gap: 6px; }
+  input, select {
+    font-family: inherit; font-size: 1rem; padding: 12px 16px; border-radius: 14px;
+    border: 2px solid #e2e5ee; background: #fff; color: var(--ink);
+  }
+  input:focus, select:focus { outline: none; border-color: var(--amber); }
+  .form-msg { display: none; text-align: center; font-family: "Caveat", cursive; font-size: 1.6rem; color: var(--navy); }
+
+  footer { padding: 30px 0 50px; color: var(--muted); font-size: .9rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 900px) {
+    .hero .wrap, .demo .wrap { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr 1fr; }
+    .benefits { grid-template-columns: 1fr; }
+    .mock { transform: none; margin-top: 10px; }
+    .sticky { left: auto; right: 10px; bottom: -36px; }
+  }
+  @media (max-width: 640px) {
+    .ad-frame { padding: 8px; border-radius: 24px; }
+    .ad-frame video { border-radius: 18px; }
+    .ad-note { right: 6px; top: -22px; font-size: 1.2rem; }
+    .quotes, .steps { grid-template-columns: 1fr; }
+    .how, .demo { margin: 0 8px; border-radius: 28px; }
+    .demo { margin-bottom: 40px; }
+    .employee-card { padding: 28px 24px; }
+    .grid { grid-template-columns: 54px repeat(5, 1fr); font-size: .72rem; }
+    nav .btn-ghost { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#"><span class="logo-mark"><span></span></span>Shiftwise</a>
+    <div>
+      <a class="btn btn-ghost btn-small" href="#how">How it works</a>
+      <a class="btn btn-ghost btn-small" href="app/index.html">Try the draft app</a>
+      <a class="btn btn-amber btn-small" href="#demo">Book a demo</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Scheduling for owners &amp; managers</span>
+      <h1>Smarter shifts, <span class="hand">fewer headaches.</span></h1>
+      <p class="sub">Build the week's schedule in minutes, not hours.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-amber" href="#demo">Book a demo</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <p class="trial-note hand">Like the demo? Get a free month on us →</p>
+    </div>
+
+    <div class="mock" aria-hidden="true">
+      <div class="mock-head">
+        <strong>Week of Nov 16</strong>
+        <span class="pill">Draft ready for review</span>
+      </div>
+      <div class="grid">
+        <div></div><div class="day">Mon</div><div class="day">Tue</div><div class="day">Wed</div><div class="day">Thu</div><div class="day">Fri</div>
+        <div class="name">Maya</div><div class="slot lead"></div><div class="slot lead"></div><div class="slot"></div><div class="slot lead"></div><div class="slot am"></div>
+        <div class="name">Jordan</div><div class="slot am"></div><div class="slot req"></div><div class="slot am"></div><div class="slot pm"></div><div class="slot"></div>
+        <div class="name">Sam</div><div class="slot pm"></div><div class="slot pm"></div><div class="slot lead"></div><div class="slot"></div><div class="slot lead"></div>
+        <div class="name">Priya</div><div class="slot"></div><div class="slot am"></div><div class="slot pm"></div><div class="slot am"></div><div class="slot req"></div>
+        <div class="name">Leo</div><div class="slot am"></div><div class="slot"></div><div class="slot am"></div><div class="slot pm"></div><div class="slot pm"></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--amber)"></i>Flagged for you</span>
+        <span><i style="background:var(--navy)"></i>Morning</span>
+        <span><i style="background:var(--navy-2);opacity:.55"></i>Evening</span>
+        <span><i style="background:#fde3b0"></i>Conflict honored</span>
+      </div>
+      <div class="sticky">No one scheduled over a conflict ✓</div>
+    </div>
+  </div>
+</header>
+
+<section class="ad" id="ad">
+  <div class="wrap">
+    <div class="section-title">
+      <span class="hand">grab a slice and watch</span>
+      <h2>Shiftwise in 30 seconds</h2>
+      <p>One lost email, one ruined wedding, and how Shiftwise keeps it from happening at your store.</p>
+    </div>
+    <div class="ad-frame">
+      <span class="ad-note">sound on!</span>
+      <video controls playsinline preload="metadata" poster="media/ad/stills/1-manager-struggling.png">
+        <source src="media/ad/shiftwise-ad.mp4" type="video/mp4">
+        Your browser can't play this video. <a href="media/ad/shiftwise-ad.mp4">Download the Shiftwise ad</a>.
+      </video>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-title">
+      <span class="hand">sound familiar?</span>
+      <h2>Scheduling is more than filling slots</h2>
+      <p>It's hours of puzzle-solving every week, and the people on both sides of the schedule feel it.</p>
+    </div>
+    <div class="quotes">
+      <div class="quote">
+        <p>Making the schedule eats hours every week. And it's not just filling slots. I'm juggling who works well with who, and all the people stuff that comes with it.</p>
+        <div class="who"><span class="avatar" style="background:var(--navy)">M</span><div><strong>The manager</strong><small>Builds the schedule</small></div></div>
+      </div>
+      <div class="quote">
+        <p>I'm not always able to get the hours I need at the times I want because of conflicts and management decisions.</p>
+        <div class="who"><span class="avatar" style="background:var(--amber);color:var(--navy)">E</span><div><strong>The employee</strong><small>Works the schedule</small></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="section-title">
+      <h2>How Shiftwise works</h2>
+      <p>Four simple steps. Shiftwise does the heavy lifting, and you stay in charge.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <span class="tag">Manager</span>
+        <h3>Set weekly hours</h3>
+        <p>Enter the hours each employee needs each week, plus any extra hours they want.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <span class="tag">Employees</span>
+        <h3>Enter conflicts</h3>
+        <p>Employees add any day or time they can't work, one time or every week, by the day before the schedule is made.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <span class="tag">Shiftwise</span>
+        <h3>Build the draft</h3>
+        <p>Shiftwise schedules around every conflict, puts everyone on, fills each shift, and flags anything it can't fill.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <span class="tag">Manager</span>
+        <h3>Review &amp; approve</h3>
+        <p>Look it over, make any tweaks, and publish. You get the final say.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-title">
+      <span class="hand">why teams love it</span>
+      <h2>Less time scheduling. More time leading.</h2>
+    </div>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></div>
+        <h3>Hours become minutes</h3>
+        <p>Shiftwise cuts schedule-making from an afternoon to a quick review.</p>
+      </div>
+      <div class="benefit">
+        <div class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 10l2.5 2.5L16 7M8 16h8"/></svg></div>
+        <h3>Managers get time back</h3>
+        <p>Spend your week running the business instead of wrestling a spreadsheet.</p>
+      </div>
+      <div class="benefit">
+        <div class="icon"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9 12h.01M12 12h.01M15 12h.01"/></svg></div>
+        <h3>Employees feel heard</h3>
+        <p>Conflicts go on record and straight into the schedule, so nobody gets scheduled when they said they can't work.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="employee">
+  <div class="wrap">
+    <div class="employee-card">
+      <div>
+        <span class="hand">psst, employees!</span>
+        <h3>Unhappy with your schedule?</h3>
+        <p>If you're not getting the hours you need, consider bringing Shiftwise up with your manager. Share this page and let them book a demo.</p>
+      </div>
+      <button class="btn btn-ghost" id="share-btn" type="button">Copy link for my manager</button>
+    </div>
+  </div>
+</div>
+
+<section class="demo" id="demo">
+  <div class="wrap">
+    <div>
+      <span class="hand" style="font-size:1.6rem">let's chat</span>
+      <h2>See Shiftwise in action</h2>
+      <p>Book a quick demo and we'll walk you through building a real week's schedule.</p>
+      <ul class="perks">
+        <li>A friendly walkthrough built around your team</li>
+        <li>Like what you see? Start a <strong>1-month free trial</strong></li>
+        <li>No pressure, and no credit card for the demo</li>
+      </ul>
+      <p class="hand" style="font-size:1.4rem;margin-top:18px">can't wait? <a href="app/index.html" style="color:var(--navy)">try the draft app →</a></p>
+    </div>
+    <form id="demo-form">
+      <label>Your name<input type="text" required placeholder="Alex Rivera"></label>
+      <label>Work email<input type="email" required placeholder="alex@company.com"></label>
+      <label>Company<input type="text" required placeholder="Company name"></label>
+      <label>Team size
+        <select>
+          <option>1–10 employees</option>
+          <option>11–50 employees</option>
+          <option>51–200 employees</option>
+          <option>200+ employees</option>
+        </select>
+      </label>
+      <button class="btn btn-amber" type="submit">Book my demo</button>
+      <p class="form-msg" id="form-msg">Thanks! We'll be in touch soon.</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span><strong style="color:var(--navy)">Shiftwise</strong>: Smarter shifts, fewer headaches.</span>
+    <span>© 2026 Shiftwise</span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('demo-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    this.querySelectorAll('label, button').forEach(function (el) { el.style.display = 'none'; });
+    document.getElementById('form-msg').style.display = 'block';
+  });
+  document.getElementById('share-btn').addEventListener('click', function () {
+    var btn = this;
+    try {
+      navigator.clipboard.writeText(location.href.split('#')[0]).then(function () {
+        btn.textContent = 'Link copied ✓';
+      });
+    } catch (err) {
+      btn.textContent = 'Copy the URL above';
+    }
+  });
+</script>
+</body>
+</html>

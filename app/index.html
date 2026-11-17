@@ -1,0 +1,1486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shiftwise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* Offline fallback: the same fonts the ad uses */
+  @font-face { font-family: Brico; src: url(../media/ad/fonts/bricolage.woff2) format('woff2'); font-weight: 200 800; }
+  @font-face { font-family: CaveatLocal; src: url(../media/ad/fonts/caveat.woff2) format('woff2'); font-weight: 400 700; }
+
+  :root {
+    --navy: #1B2A41;
+    --navy-2: #2A3B55;
+    --navy-soft: #E6EAF1;
+    --amber: #FFB627;
+    --amber-dk: #D99413;
+    --amber-soft: #FFF3DC;
+    --ink: #0F1A2B;
+    --cream: #F4EFE6;
+    --paper: #F7F4EE;
+    --card: #ffffff;
+    --red: #D2453B;
+    --red-soft: #FBE7E5;
+    --green: #2E7D4F;
+    --green-soft: #E3F3EA;
+    --muted: #5B6478;
+    --line: #DDD8CE;
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Bricolage Grotesque", Brico, system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  .hand { font-family: "Caveat", CaveatLocal, cursive; color: var(--amber-dk); font-weight: 700; }
+  h1, h2, h3 { color: var(--navy); letter-spacing: -0.015em; line-height: 1.15; margin: 0; }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 800; }
+  h2 { font-size: 1.35rem; font-weight: 800; }
+  h3 { font-size: 1.05rem; font-weight: 700; }
+  p { margin: 0; }
+  .muted { color: var(--muted); }
+  .small { font-size: .88rem; }
+  .hidden, [hidden] { display: none !important; }
+
+  /* Logo mark (the "two shifts" S from the ad) */
+  .mark { width: 34px; height: 34px; flex: none; display: block; }
+
+  /* Top bar */
+  .top { background: var(--navy); color: var(--cream); }
+  .top .wrap { display: flex; align-items: center; gap: 14px; min-height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.3rem; letter-spacing: -.01em; color: inherit; text-decoration: none; }
+  a.brand:hover { opacity: .85; }
+  .top .meta { color: #AEB7C6; font-size: .9rem; border-left: 1px solid var(--navy-2); padding-left: 14px; }
+  .userbox { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: .92rem; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: var(--amber); color: var(--navy); flex: none; }
+  .avatar.navy { background: var(--cream); color: var(--navy); }
+  .linkbtn { background: none; border: 0; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; padding-top: 18px; padding-bottom: 4px; overflow-x: auto; scrollbar-width: none; }
+  .tab {
+    font: inherit; font-weight: 700; font-size: .95rem; white-space: nowrap;
+    padding: 9px 18px; border-radius: 999px; border: 2px solid var(--line);
+    background: var(--card); color: var(--navy); cursor: pointer;
+  }
+  .tab.on { background: var(--navy); border-color: var(--navy); color: var(--cream); }
+  .badge { display: inline-block; background: var(--amber); color: var(--navy); border-radius: 999px; font-size: .74rem; padding: 0 8px; margin-left: 6px; font-weight: 800; line-height: 1.6; }
+
+  main { padding-top: 18px; padding-bottom: 60px; }
+
+  /* Buttons */
+  .btn {
+    font: inherit; font-weight: 700; font-size: 1rem;
+    border-radius: 999px; padding: 11px 22px; border: 2px solid transparent;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform .12s ease, box-shadow .12s ease; white-space: nowrap;
+  }
+  .btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .btn:active:not(:disabled) { transform: translateY(2px); }
+  .btn-amber { background: var(--amber); color: var(--navy); box-shadow: 0 5px 0 var(--amber-dk); }
+  .btn-navy { background: var(--navy); color: var(--cream); box-shadow: 0 5px 0 var(--ink); }
+  .btn-ghost { background: var(--card); border-color: var(--navy); color: var(--navy); }
+  .btn-danger { background: var(--card); border-color: var(--red); color: var(--red); }
+  .btn-sm { padding: 6px 14px; font-size: .88rem; }
+  .btn-block { width: 100%; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+  .btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Cards & pills */
+  .card { background: var(--card); border-radius: var(--radius); padding: 22px; box-shadow: 0 12px 30px -20px rgba(27,42,65,.35); }
+  .card + .card { margin-top: 18px; }
+  .stack > * + * { margin-top: 18px; }
+  .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .spread { justify-content: space-between; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: .82rem; white-space: nowrap; }
+  .pill svg { width: 14px; height: 14px; fill: currentColor; }
+  .pill.amber { background: var(--amber); color: var(--navy); }
+  .pill.outline { border: 2px solid var(--amber); color: #8A5A00; background: #fff; padding: 2px 11px; }
+  .pill.red { background: var(--red-soft); color: var(--red); }
+  .pill.green { background: var(--green-soft); color: var(--green); }
+  .pill.navy { background: var(--navy-soft); color: var(--navy); }
+  .pill.grey { background: #ECEDF1; color: var(--muted); }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .page-head .hand { font-size: 1.5rem; display: block; line-height: 1; margin-bottom: 2px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Schedule grid (matches the ad's monitor UI) */
+  .grid-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 4px 2px 8px; }
+  .sgrid { display: grid; grid-template-columns: 96px repeat(7, minmax(96px, 1fr)); gap: 8px; min-width: 820px; }
+  .dayh { text-align: center; font-weight: 700; font-size: .8rem; color: var(--navy); letter-spacing: .05em; text-transform: uppercase; }
+  .dayh small { display: block; color: var(--muted); font-weight: 500; letter-spacing: 0; text-transform: none; font-size: .78rem; }
+  .rowh { font-weight: 700; color: var(--muted); font-size: .88rem; align-self: center; line-height: 1.25; }
+  .rowh small { display: block; font-weight: 500; font-size: .74rem; }
+  .cell { border: 1.5px dashed #C9CED6; border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 8px; min-height: 56px; transition: background .12s, border-color .12s; }
+  .cell.empty { border-style: dotted; opacity: .5; }
+  .cell.drop-hover { border-color: var(--amber); background: var(--amber-soft); }
+  .cell.target { border-color: var(--amber); }
+  .sblock { display: flex; flex-direction: column; gap: 5px; }
+  .sblock + .sblock { border-top: 1px solid var(--line); padding-top: 8px; }
+  .sblock .stime { font-size: .7rem; color: var(--muted); text-align: center; font-weight: 600; }
+  .chip {
+    display: flex; align-items: center; justify-content: center; min-height: 30px; border-radius: 8px;
+    background: var(--navy); color: var(--cream); font: inherit; font-size: .82rem; font-weight: 650;
+    border: 0; width: 100%; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  button.chip { cursor: pointer; }
+  button.chip:hover { filter: brightness(1.15); }
+  .chip.open { background: transparent; color: #A06C00; border: 1.5px dashed var(--amber); }
+  .chip.me { background: var(--amber); color: var(--navy); }
+  .chip.sel { outline: 3px solid var(--amber); outline-offset: 2px; }
+  .chip.bad { background: var(--red); color: #fff; }
+  .chip.dragging { opacity: .4; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; font-size: .8rem; color: var(--muted); }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 6px; vertical-align: -1px; }
+
+  /* Flag list */
+  .flags { border: 2px solid var(--amber); }
+  .flags-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .flag { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .flag:first-of-type { border-top: 0; }
+  .flag-ico { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; flex: none; font-weight: 800; font-size: .9rem; }
+  .flag-ico.amber { background: var(--amber); color: var(--navy); }
+  .flag-ico.red { background: var(--red); color: #fff; }
+  .flag-ico.navy { background: var(--navy-soft); color: var(--navy); }
+  .flag-body { flex: 1; min-width: 0; }
+  .flag-body strong { color: var(--navy); }
+  .flag-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .allclear { display: flex; align-items: center; gap: 10px; color: var(--green); font-weight: 700; }
+
+  /* Rule check strip */
+  .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+  .rule { display: flex; gap: 10px; align-items: flex-start; background: var(--card); border-radius: 14px; padding: 12px 14px; font-size: .88rem; box-shadow: 0 8px 20px -16px rgba(27,42,65,.4); }
+  .tick { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; flex: none; color: #fff; font-size: .78rem; font-weight: 800; }
+  .tick.ok { background: var(--green); }
+  .tick.no { background: var(--red); }
+
+  .selbar { position: sticky; top: 8px; z-index: 5; background: var(--navy); color: var(--cream); border-radius: 14px; padding: 10px 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: .92rem; margin-bottom: 12px; }
+  .selbar .btn-ghost { background: transparent; color: var(--cream); border-color: var(--cream); }
+
+  /* Hours table */
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th { text-align: left; font-size: .76rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; padding: 8px 8px; border-bottom: 2px solid var(--line); }
+  td { padding: 10px 8px; border-bottom: 1px solid #EEEAE2; vertical-align: middle; }
+  .table-scroll { overflow-x: auto; }
+  .bar { height: 10px; border-radius: 999px; background: #ECEDF1; position: relative; overflow: hidden; min-width: 90px; }
+  .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--navy); border-radius: 999px; }
+  .bar i.full { background: var(--amber); }
+  .bar b { position: absolute; top: -2px; bottom: -2px; width: 2px; background: var(--ink); }
+
+  /* Forms */
+  label.f { display: grid; gap: 6px; font-weight: 600; font-size: .88rem; color: var(--navy); }
+  input, select, textarea {
+    font: inherit; font-size: 1rem; padding: 11px 14px; border-radius: 12px;
+    border: 2px solid var(--line); background: #fff; color: var(--ink); width: 100%; min-width: 0;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--amber); }
+  input.sm { padding: 7px 10px; font-size: .92rem; border-radius: 10px; }
+  .fgrid { display: grid; gap: 14px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; font-weight: 650; color: var(--navy); font-size: 1.02rem; }
+  .switch { position: relative; width: 60px; height: 34px; flex: none; }
+  .switch input { position: absolute; opacity: 0; inset: 0; cursor: pointer; z-index: 1; margin: 0; }
+  .switch i { position: absolute; inset: 0; border-radius: 999px; background: #D5D9DF; transition: background .15s; }
+  .switch i::after { content: ""; position: absolute; left: 4px; top: 4px; width: 26px; height: 26px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .switch input:checked + i { background: var(--amber); }
+  .switch input:checked + i::after { transform: translateX(26px); }
+  .switch input:focus-visible + i { outline: 3px solid var(--navy); outline-offset: 2px; }
+  .err { color: var(--red); font-size: .88rem; font-weight: 600; }
+
+  /* Modal / sheet */
+  .overlay { position: fixed; inset: 0; background: rgba(15,26,43,.55); z-index: 50; display: flex; align-items: flex-end; justify-content: center; padding: 0; }
+  @media (min-width: 640px) { .overlay { align-items: center; padding: 20px; } }
+  .sheet { background: var(--paper); width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto; border-radius: 28px 28px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.3); }
+  @media (min-width: 640px) { .sheet { border-radius: 28px; } }
+  .sheet-head { background: var(--navy); color: var(--cream); padding: 16px 22px; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.15rem; }
+  .sheet-head .x { margin-left: auto; background: none; border: 0; color: var(--cream); font-size: 1.6rem; line-height: 1; cursor: pointer; padding: 0 4px; }
+  .sheet-body { padding: 22px; }
+  .sheet-body h2 { font-size: 1.7rem; margin-bottom: 14px; }
+  .done { text-align: center; padding: 34px 22px 26px; }
+  .done .check { width: 92px; height: 92px; border-radius: 50%; background: var(--amber); display: grid; place-items: center; margin: 0 auto 16px; animation: pop .35s cubic-bezier(.3,1.6,.6,1); }
+  .done .check svg { width: 46px; height: 46px; stroke: var(--navy); stroke-width: 4.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .done h2 { font-size: 2rem; margin-bottom: 4px; }
+  @keyframes pop { from { transform: scale(.4); } to { transform: scale(1); } }
+  .pick { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; font: inherit; background: var(--card); border: 2px solid transparent; border-radius: 14px; padding: 10px 12px; cursor: pointer; margin-bottom: 8px; }
+  .pick:hover:not(:disabled) { border-color: var(--amber); }
+  .pick:disabled { opacity: .55; cursor: not-allowed; }
+  .pick .grow { flex: 1; min-width: 0; }
+
+  /* Toast */
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--navy); color: var(--cream); padding: 12px 20px; border-radius: 14px; font-weight: 600; box-shadow: 0 10px 30px rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 80; max-width: calc(100% - 32px); text-align: center; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Employee */
+  .reminder { background: var(--amber-soft); border: 2px dashed var(--amber); border-radius: 26px; padding: 22px 24px; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+  .reminder .hand { font-size: 1.5rem; display: block; line-height: 1; }
+  .reminder.closed { background: #fff; border-color: var(--line); }
+  .notice { background: var(--navy); color: var(--cream); border-radius: 18px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .notice .hand { color: var(--amber); font-size: 1.45rem; line-height: 1; }
+  .notice .btn-ghost { background: transparent; color: var(--cream); border-color: var(--cream); margin-left: auto; }
+  .myshifts { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .myshift { background: var(--navy); color: var(--cream); border-radius: 16px; padding: 14px 16px; }
+  .myshift strong { display: block; font-size: 1.05rem; }
+  .myshift span { color: #C3CBDA; font-size: .9rem; }
+  .clist { display: grid; gap: 10px; }
+  .citem { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; font: inherit; background: var(--card); border: 2px solid transparent; border-radius: 16px; padding: 14px 16px; cursor: pointer; box-shadow: 0 8px 20px -16px rgba(27,42,65,.4); }
+  .citem:hover { border-color: var(--amber); }
+  .citem.past { opacity: .55; }
+  .cdate { width: 54px; height: 54px; border-radius: 14px; background: var(--navy-soft); color: var(--navy); display: grid; place-items: center; text-align: center; line-height: 1.05; flex: none; font-weight: 800; }
+  .cdate small { display: block; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .citem .grow { flex: 1; min-width: 0; }
+  .citem .grow strong { color: var(--navy); display: block; }
+
+  /* Login */
+  .login { min-height: 100vh; display: grid; place-items: center; padding: 30px 16px; position: relative; overflow: hidden; }
+  .blob { position: absolute; border-radius: 50%; z-index: 0; }
+  .login .card { position: relative; z-index: 1; width: 100%; max-width: 460px; padding: 30px; }
+  .login .brand { color: var(--navy); font-size: 1.6rem; margin-bottom: 18px; }
+  .who-list { display: grid; gap: 8px; margin-top: 16px; }
+
+  /* Review list */
+  .rv { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 14px 0; border-top: 1px solid var(--line); }
+  .rv:first-child { border-top: 0; }
+  .rv strong { color: var(--navy); }
+  .section-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; margin: 4px 0 6px; }
+
+  .empty-state { text-align: center; padding: 46px 20px; }
+  .empty-state .hand { font-size: 1.7rem; }
+  .empty-state p { max-width: 46ch; margin: 8px auto 20px; }
+
+  .print-title { display: none; }
+
+  @media (max-width: 720px) {
+    .top .meta { display: none; }
+    .userbox .uname { display: none; }
+    .two { grid-template-columns: 1fr; }
+    .rv { grid-template-columns: 1fr; }
+    .card { padding: 18px; }
+  }
+
+  /* Side decorations: ad-style props that drift in the empty gutters as you scroll */
+  #app { position: relative; z-index: 1; }
+  #deco { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .d-item { position: absolute; top: 0; will-change: transform; }
+  .d-item > * { animation: bob var(--dur, 5s) ease-in-out var(--delay, 0s) infinite alternate; }
+  @media (prefers-reduced-motion: reduce) { .d-item > * { animation: none; } }
+  @keyframes bob { from { translate: 0 -7px; rotate: -2deg; } to { translate: 0 7px; rotate: 2deg; } }
+  .d-note { width: 124px; padding: 20px 12px 14px; font-family: "Caveat", CaveatLocal, cursive; font-weight: 700; font-size: 1.4rem; line-height: 1.02; color: var(--navy); text-align: center; border-radius: 3px; box-shadow: 0 12px 22px -14px rgba(15,26,43,.5); position: relative; }
+  .d-note.amber { background: var(--amber); }
+  .d-note.cream { background: #fff; }
+  .d-note.red { color: var(--red); background: #fff; font-size: 1.7rem; }
+  .d-note .pin { position: absolute; top: 7px; left: 50%; width: 11px; height: 11px; margin-left: -5.5px; border-radius: 50%; background: var(--red); }
+  .d-chip { display: inline-block; padding: 7px 18px; border-radius: 9px; background: var(--navy); color: var(--cream); font-weight: 700; font-size: .92rem; white-space: nowrap; box-shadow: 0 10px 20px -12px rgba(15,26,43,.5); }
+  .d-chip.open { background: var(--paper); color: #A06C00; border: 1.5px dashed var(--amber); box-shadow: none; }
+  .d-chip.amber { background: var(--amber); color: var(--navy); }
+  .d-flag { display: inline-flex; gap: 6px; align-items: center; padding: 6px 14px; border-radius: 999px; background: var(--amber); color: var(--navy); font-weight: 700; font-size: .85rem; white-space: nowrap; box-shadow: 0 10px 20px -12px rgba(15,26,43,.5); }
+  .d-flag svg { width: 13px; height: 13px; fill: currentColor; }
+  .d-check { width: 58px; height: 58px; border-radius: 50%; background: var(--amber); display: grid; place-items: center; box-shadow: 0 10px 20px -12px rgba(15,26,43,.5); }
+  .d-check svg { width: 30px; height: 30px; stroke: var(--navy); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .d-mark svg { width: 54px; height: 54px; display: block; filter: drop-shadow(0 10px 12px rgba(15,26,43,.25)); }
+  .d-slice svg { width: 96px; display: block; }
+  .d-mini { background: #fff; border-radius: 14px; padding: 10px; display: grid; grid-template-columns: repeat(3, 28px); gap: 5px; box-shadow: 0 12px 22px -14px rgba(15,26,43,.5); }
+  .d-mini i { height: 14px; border-radius: 4px; background: var(--navy); }
+  .d-mini i.a { background: var(--amber); }
+  .d-mini i.o { background: transparent; border: 1.5px dashed var(--amber); }
+
+  @media print {
+    #deco { display: none !important; }
+    @page { size: landscape; margin: 10mm; }
+    body { background: #fff; }
+    .top, .tabs, .no-print, .flags, .rules, .selbar, .reminder, .notice, #toast { display: none !important; }
+    .card { box-shadow: none; padding: 0; }
+    .grid-scroll { overflow: visible; }
+    .sgrid { min-width: 0; }
+    .print-title { display: block; margin-bottom: 12px; }
+    .chip, .chip.me, .pill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   Shiftwise — functional draft
+   Single file. All data lives in this browser (localStorage).
+   Rules come from problem.md / solution.md.
+   ===================================================================== */
+
+const KEY = 'shiftwise-app-v2';
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const clone = o => JSON.parse(JSON.stringify(o));
+
+/* ---------- dates & times (all local, ISO "YYYY-MM-DD") ---------- */
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const pd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (s, n) => { const d = pd(s); d.setDate(d.getDate() + n); return iso(d); };
+const todayISO = () => iso(new Date());
+const daysBetween = (a, b) => Math.round((pd(b) - pd(a)) / 864e5);
+const nextMonday = s => { const dow = pd(s).getDay(); return addDays(s, ((8 - dow) % 7) || 7); };
+const weekDates = wk => [0, 1, 2, 3, 4, 5, 6].map(i => addDays(wk, i));
+const DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYLONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const fmtDate = s => pd(s).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+const fmtShort = s => pd(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const fmtTime = t => { let [h, m] = t.split(':').map(Number); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return m ? `${h}:${pad(m)} ${ap}` : `${h} ${ap}`; };
+const dur = sh => Math.max(0, (toMin(sh.end) - toMin(sh.start)) / 60);
+const fmtH = h => (Math.round(h * 10) / 10) + 'h';
+const parseDT = s => { const [d, t] = s.split('T'); const [y, mo, da] = d.split('-').map(Number); const [h, mi] = (t || '23:59').split(':').map(Number); return new Date(y, mo - 1, da, h, mi).getTime(); };
+const dtLocal = ms => { const d = new Date(ms); return `${iso(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fmtDT = ms => new Date(ms).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+const weekLabel = wk => `Week of ${fmtShort(wk)}`;
+const overlaps = (a1, a2, b1, b2) => a1 < b2 && b1 < a2;
+const shiftsOverlap = (a, b) => a.date === b.date && overlaps(toMin(a.start), toMin(a.end), toMin(b.start), toMin(b.end));
+const timeLeft = ms => {
+  const d = ms - Date.now();
+  if (d <= 0) return 'closed';
+  const h = d / 36e5;
+  if (h < 1) return `${Math.max(1, Math.round(d / 6e4))} min left`;
+  if (h < 36) return `${Math.round(h)} hours left`;
+  return `${Math.round(h / 24)} days left`;
+};
+
+/* ---------- seed data ---------- */
+const SEED = [['Dev', 30, 0], ['Jordan', 20, 6], ['Priya', 24, 0], ['Sam', 15, 12], ['Marcus', 24, 6], ['Lee', 20, 5], ['Kai', 10, 16], ['Ana', 22, 5]];
+
+function template(wk) {
+  return weekDates(wk).flatMap(d => {
+    const dow = pd(d).getDay();
+    return [
+      { id: uid(), date: d, label: 'Lunch', start: '11:00', end: '16:00', needed: 2 },
+      { id: uid(), date: d, label: 'Dinner', start: '16:00', end: '22:00', needed: (dow === 5 || dow === 6) ? 4 : 3 },
+    ];
+  });
+}
+
+function freshState() {
+  const wk = nextMonday(todayISO());
+  return {
+    v: 2,
+    store: 'Main Street Pizza',
+    week: wk,                                   // the week being scheduled (a Monday)
+    deadline: parseDT(addDays(wk, -2) + 'T23:59') + 59999,     // conflicts due the day before the schedule is made
+    employees: SEED.map(([name, need, extra]) => ({ id: uid(), name, need, extra })),
+    conflicts: [],
+    shifts: { [wk]: template(wk) },
+    schedules: {},                              // week -> { draft:{shiftId:[empId]}, published:{shifts,asg,at}|null, dirty }
+    testLog: [],
+    seen: {},                                   // empId -> last published timestamp they've seen
+    session: null,                              // 'manager' | empId
+  };
+}
+
+function demoState() {
+  const s = freshState();
+  s.session = S ? S.session : null;
+  if (s.session && s.session !== 'manager') s.session = null; // employee ids change on reset
+  const by = n => s.employees.find(e => e.name === n).id;
+  const wk = s.week;
+  const dayOf = dow => weekDates(wk).find(x => pd(x).getDay() === dow);
+  const now = Date.now();
+  s.deadline = now - 36e5;           // deadline passed an hour ago
+  const early = now - 2 * 864e5;
+  const mk = (name, date, o) => Object.assign({ id: uid(), empId: by(name), date, wholeDay: false, start: '00:00', end: '23:59', repeats: false, until: '', reason: '', submittedAt: early, status: 'received', lateHandled: false }, o);
+  s.conflicts = [
+    mk('Jordan', addDays(dayOf(2), -28), { wholeDay: true, repeats: true, reason: 'Night class', status: 'approved', submittedAt: early - 30 * 864e5 }),
+    mk('Ana', addDays(dayOf(0), -21), { wholeDay: true, repeats: true, reason: 'Family day', status: 'approved', submittedAt: early - 25 * 864e5 }),
+    mk('Kai', dayOf(1), { start: '11:00', end: '15:00', repeats: true, reason: 'Class', status: 'pending' }),
+    mk('Priya', dayOf(3), { start: '10:00', end: '14:00', reason: 'Dentist' }),
+    mk('Sam', dayOf(4), { start: '17:00', end: '22:00', reason: 'Exam review' }),
+    mk('Marcus', dayOf(6), { wholeDay: true, reason: "Sister's wedding", submittedAt: now - 5 * 6e4 }),
+  ];
+  return s;
+}
+
+/* ---------- state ---------- */
+let S = null;
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) { const o = JSON.parse(raw); if (o && o.v === 2) return o; } } catch (e) {}
+  return null;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+S = load() || freshState();
+
+const ui = { mtab: 'schedule', etab: 'home', sel: null, drag: null, formOpenedAt: null, editId: null, showAllConflicts: false };
+
+const emp = id => S.employees.find(e => e.id === id);
+const empName = id => (emp(id) || { name: 'Former employee' }).name;
+const weekShifts = (wk = S.week) => (S.shifts[wk] || []).slice().sort((a, b) => a.date.localeCompare(b.date) || toMin(a.start) - toMin(b.start));
+const shiftById = id => weekShifts().find(s => s.id === id);
+const sched = (wk = S.week) => S.schedules[wk] || null;
+const deadlineMs = () => S.deadline;
+const isOpen = () => Date.now() <= deadlineMs();
+
+/* ---------- conflict logic ---------- */
+function occursOn(c, date) {
+  if (date < c.date) return false;
+  if (!c.repeats) return date === c.date;
+  if (c.until && date > c.until) return false;
+  return daysBetween(c.date, date) % 7 === 0;
+}
+const occursInWeek = (c, wk = S.week) => weekDates(wk).some(d => occursOn(c, d));
+const hits = (c, sh) => occursOn(c, sh.date) && (c.wholeDay || overlaps(toMin(c.start), toMin(c.end), toMin(sh.start), toMin(sh.end)));
+// Late = submitted after this week's deadline AND it affects this week.
+const isLate = c => c.submittedAt > deadlineMs() && occursInWeek(c);
+const isLateOpen = c => isLate(c) && !c.lateHandled && c.status !== 'rejected';
+// Honored when building/checking the schedule: on time (or late but the manager chose to honor it), and not rejected.
+const honored = c => c.status !== 'rejected' && (!isLate(c) || c.lateHandled);
+const conflictFor = (empId, sh) => S.conflicts.find(c => c.empId === empId && honored(c) && hits(c, sh));
+
+function describeWhen(c) {
+  if (c.repeats) {
+    let s = `Every ${DAYLONG[pd(c.date).getDay()]}`;
+    s += c.until ? `, ${fmtShort(c.date)} – ${fmtShort(c.until)}` : `, starting ${fmtShort(c.date)}`;
+    return s;
+  }
+  return fmtDate(c.date);
+}
+const describeTime = c => c.wholeDay ? 'Whole day' : `${fmtTime(c.start)} – ${fmtTime(c.end)}`;
+
+/* ---------- schedule generation ----------
+   Priority (problem.md):
+   1. Never schedule anyone during a conflict entered on time.
+   2. Every employee appears at least once.
+   3. Each shift is fully staffed.
+   4. Give everyone the hours they need.
+   5. Then give extra hours to people who asked for them.
+   Anything that can't be filled stays open and gets flagged.            */
+function generateOnce() {
+  const shifts = weekShifts();
+  const emps = S.employees;
+  const asg = {}; shifts.forEach(s => asg[s.id] = []);
+  const hrs = {}; emps.forEach(e => hrs[e.id] = 0);
+  const jit = {}; emps.forEach(e => jit[e.id] = Math.random()); // random tie-breaks so each try differs
+
+  const allowed = (e, sh) => !conflictFor(e.id, sh);
+  const busy = (eid, sh, ignore) => shifts.some(o => o.id !== sh.id && o.id !== ignore && asg[o.id].includes(eid) && shiftsOverlap(o, sh));
+  const sameDay = (eid, sh) => shifts.some(o => o.id !== sh.id && o.date === sh.date && asg[o.id].includes(eid));
+  const eligible = (e, sh) => asg[sh.id].length < sh.needed && !asg[sh.id].includes(e.id) && allowed(e, sh) && !busy(e.id, sh);
+  const assign = (e, sh) => { asg[sh.id].push(e.id); hrs[e.id] += dur(sh); };
+  // Cap: never go past the hours someone needs plus the extra they asked for.
+  const fitsCap = (e, sh) => hrs[e.id] + dur(sh) <= e.need + e.extra;
+  const tier = e => hrs[e.id] < e.need ? 0 : hrs[e.id] < e.need + e.extra ? 1 : 2;
+  const better = (sh) => (a, b) => {
+    const ta = tier(a), tb = tier(b);
+    if (ta !== tb) return ta - tb;
+    const da = sameDay(a.id, sh) ? 1 : 0, db = sameDay(b.id, sh) ? 1 : 0;
+    if (da !== db) return da - db;
+    if (ta === 0) return ((b.need - hrs[b.id]) - (a.need - hrs[a.id])) || (jit[a.id] - jit[b.id]);
+    if (ta === 1) return ((b.need + b.extra - hrs[b.id]) - (a.need + a.extra - hrs[a.id])) || (jit[a.id] - jit[b.id]);
+    return (hrs[a.id] - hrs[b.id]) || (jit[a.id] - jit[b.id]);
+  };
+
+  // Rule 2: everyone at least once. Most-constrained people pick first.
+  const availCount = e => shifts.filter(sh => allowed(e, sh)).length;
+  const order = emps.slice().sort((a, b) => availCount(a) - availCount(b) || Math.random() - .5);
+  for (const e of order) {
+    const opts = shifts.filter(sh => eligible(e, sh));
+    if (!opts.length) continue;
+    const cands = sh => emps.filter(x => allowed(x, sh)).length;
+    // Rule 2 outranks the hours cap, but prefer a shift that fits within it.
+    opts.sort((a, b) => (fitsCap(e, b) - fitsCap(e, a)) || (b.needed - asg[b.id].length) / b.needed - (a.needed - asg[a.id].length) / a.needed || cands(a) - cands(b));
+    assign(e, opts[0]);
+  }
+
+  // Rule 3–5: fill every slot, most-constrained shift first.
+  for (let guard = 0; guard < 5000; guard++) {
+    const open = shifts.filter(sh => asg[sh.id].length < sh.needed)
+      .map(sh => ({ sh, c: emps.filter(e => eligible(e, sh) && fitsCap(e, sh)) }))
+      .filter(o => o.c.length);
+    if (!open.length) break;
+    open.sort((a, b) => a.c.length - b.c.length);
+    const { sh, c } = open[0];
+    c.sort(better(sh));
+    assign(c[0], sh);
+  }
+
+  // Rule 4–5 polish: hand shifts to people short of their needed hours first,
+  // then to people who asked for extra hours, taking them from whoever has the most to spare.
+  const target = e => e.need + e.extra;
+  for (let guard = 0; guard < 400; guard++) {
+    const short = emps.filter(e => hrs[e.id] < target(e))
+      .sort((a, b) => ((hrs[a.id] < a.need ? 0 : 1) - (hrs[b.id] < b.need ? 0 : 1)) || ((target(b) - hrs[b.id]) - (target(a) - hrs[a.id])));
+    let swapped = false;
+    for (const u of short) {
+      const uShort = hrs[u.id] < u.need;
+      for (const sh of shifts) {
+        if (asg[sh.id].includes(u.id) || !allowed(u, sh) || busy(u.id, sh)) continue;
+        const d = dur(sh);
+        const fits = hrs[u.id] + d <= target(u);
+        const givers = asg[sh.id].map(emp).filter(v => v && shifts.filter(o => asg[o.id].includes(v.id)).length > 1 && (
+          // u still needs hours: take from anyone who keeps their needed hours
+          (uShort && fits && hrs[v.id] - d >= v.need) ||
+          // u wants extra: only take from someone already over their own total
+          (!uShort && fits && hrs[v.id] > target(v) && hrs[v.id] - d >= v.need)
+        )).sort((a, b) => (hrs[b.id] - target(b)) - (hrs[a.id] - target(a)));
+        const giver = givers[0];
+        if (giver) {
+          asg[sh.id] = asg[sh.id].map(x => x === giver.id ? u.id : x);
+          hrs[giver.id] -= d; hrs[u.id] += d;
+          swapped = true; break;
+        }
+      }
+      if (swapped) break;
+    }
+    if (!swapped) break;
+  }
+  return asg;
+}
+
+// Try many times and keep the best: fewest open spots, then fewest hours short
+// of what people need, then fewest extra hours left ungiven, then fewest doubles.
+function generate() {
+  const shifts = weekShifts();
+  let best = null, bestScore = Infinity;
+  for (let i = 0; i < 300; i++) {
+    const asg = generateOnce();
+    const hrs = {}; S.employees.forEach(e => hrs[e.id] = 0);
+    let open = 0, doubles = 0;
+    const days = {};
+    for (const sh of shifts) {
+      open += sh.needed - asg[sh.id].length;
+      for (const id of asg[sh.id]) { hrs[id] += dur(sh); const k = id + sh.date; days[k] = (days[k] || 0) + 1; if (days[k] > 1) doubles++; }
+    }
+    let short = 0, extraLeft = 0, missing = 0;
+    S.employees.forEach(e => { short += Math.max(0, e.need - hrs[e.id]); extraLeft += Math.max(0, e.need + e.extra - hrs[e.id]); if (!hrs[e.id]) missing++; });
+    const score = missing * 1e7 + open * 1e5 + short * 1e3 + extraLeft * 10 + doubles;
+    if (score < bestScore) { bestScore = score; best = asg; }
+    if (score === 0) break;
+  }
+  return best;
+}
+
+/* ---------- analysis: flags + rule checks ---------- */
+function analyze() {
+  const shifts = weekShifts();
+  const s = sched();
+  const asg = s ? s.draft : null;
+  const r = {
+    late: S.conflicts.filter(isLateOpen),
+    lateAll: S.conflicts.filter(isLate),
+    pending: S.conflicts.filter(c => c.repeats && c.status === 'pending' && !isLateOpen(c)),
+    unfilled: [], violations: [], missing: [], under: [], over: [], hrs: {}, count: {}, openSpots: 0, hasDraft: !!asg,
+  };
+  S.employees.forEach(e => { r.hrs[e.id] = 0; r.count[e.id] = 0; });
+  if (!asg) return r;
+  for (const sh of shifts) {
+    const a = (asg[sh.id] || []).filter(emp);
+    a.forEach(id => {
+      r.hrs[id] += dur(sh); r.count[id]++;
+      const c = conflictFor(id, sh);
+      if (c) r.violations.push({ id, sh, c });
+    });
+    if (a.length < sh.needed) { r.unfilled.push({ sh, n: sh.needed - a.length }); r.openSpots += sh.needed - a.length; }
+  }
+  r.missing = S.employees.filter(e => !r.count[e.id]);
+  r.under = S.employees.filter(e => r.count[e.id] && r.hrs[e.id] < e.need);
+  r.over = S.employees.filter(e => r.hrs[e.id] > e.need + e.extra);
+  return r;
+}
+
+/* ---------- icons ---------- */
+const markSVG = (bg = '#FFB627', fg = '#1B2A41') => `<svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="24" fill="${bg}"/><path d="M72 30 H40 a10 10 0 0 0 0 20 H60 a10 10 0 0 1 0 20 H28" fill="none" stroke="${fg}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const flagSVG = `<svg viewBox="0 0 24 24"><path d="M5 21V4h11l-1.5 4L16 12H7v9z"/></svg>`;
+const I = {
+  plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  spark: '<svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>',
+  send: '<svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2-6z"/></svg>',
+  print: '<svg viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+};
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+function render() {
+  const app = $('#app');
+  if (!S.session) { app.innerHTML = loginView(); return; }
+  if (S.session === 'manager') {
+    app.innerHTML = topbar('Alex', 'Store manager') + managerTabs() + `<main class="wrap">${managerView()}</main>`;
+  } else {
+    const e = emp(S.session);
+    if (!e) { S.session = null; save(); return render(); }
+    app.innerHTML = topbar(e.name, 'Team member') + employeeTabs() + `<main class="wrap">${employeeView(e)}</main>`;
+  }
+}
+
+function topbar(name, role) {
+  return `<header class="top"><div class="wrap">
+    <a class="brand" href="../web-page.html" title="Back to the Shiftwise main page">${markSVG()}Shiftwise</a>
+    <div class="meta">${esc(S.store)}</div>
+    <div class="userbox">
+      <span class="avatar">${esc(name[0])}</span>
+      <span class="uname"><strong>${esc(name)}</strong> · <span style="color:#AEB7C6">${role}</span></span>
+      <button class="linkbtn" data-act="logout">Switch user</button>
+    </div>
+  </div></header>`;
+}
+
+/* ---------- login ---------- */
+function loginView() {
+  return `<div class="login">
+    <div class="blob" style="width:460px;height:460px;background:var(--amber-soft);right:-120px;top:-100px"></div>
+    <div class="blob" style="width:300px;height:300px;background:var(--navy-soft);left:-110px;bottom:-80px"></div>
+    <div class="card">
+      <a class="brand" href="../web-page.html" title="Back to the Shiftwise main page">${markSVG('#1B2A41', '#FFB627')}Shiftwise</a>
+      <h1>Sign in</h1>
+      <p class="muted" style="margin-top:6px">Use your company login. Your manager adds you first.</p>
+      <p class="hand" style="font-size:1.35rem;margin-top:10px">draft demo: just pick who you are ↓</p>
+      <div class="who-list">
+        <button class="pick" data-act="login" data-id="manager"><span class="avatar" style="background:var(--navy);color:var(--cream)">A</span><span class="grow"><strong>Alex</strong><br><span class="muted small">Store manager</span></span>${I.arrow.replace('<svg', '<svg width="20" height="20" style="stroke:var(--navy);fill:none;stroke-width:2.4"')}</button>
+        ${S.employees.map(e => `<button class="pick" data-act="login" data-id="${e.id}"><span class="avatar">${esc(e.name[0])}</span><span class="grow"><strong>${esc(e.name)}</strong><br><span class="muted small">Team member</span></span></button>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- shared schedule grid ----------
+   opts: { shifts, asg, edit:bool, me:empId } */
+function gridHTML(wk, opts) {
+  const shifts = opts.shifts;
+  const days = weekDates(wk);
+  const labels = [];
+  shifts.forEach(s => { if (!labels.find(l => l.label === s.label)) labels.push({ label: s.label, start: s.start, end: s.end }); });
+  labels.sort((a, b) => toMin(a.start) - toMin(b.start));
+  if (!labels.length) return `<div class="empty-state"><p class="muted">No shifts set up for this week yet.</p></div>`;
+
+  let h = `<div class="grid-scroll"><div class="sgrid"><div></div>`;
+  days.forEach(d => { h += `<div class="dayh">${DAY[pd(d).getDay()]}<small>${fmtShort(d)}</small></div>`; });
+  for (const L of labels) {
+    h += `<div class="rowh">${esc(L.label)}<small>${fmtTime(L.start)}–${fmtTime(L.end)}</small></div>`;
+    for (const d of days) {
+      const here = shifts.filter(s => s.date === d && s.label === L.label);
+      if (!here.length) { h += `<div class="cell empty"></div>`; continue; }
+      h += `<div class="cell">`;
+      for (const sh of here) {
+        const people = (opts.asg[sh.id] || []).filter(emp);
+        const odd = sh.start !== L.start || sh.end !== L.end;
+        h += `<div class="sblock" ${opts.edit ? `data-drop="${sh.id}"` : ''}>`;
+        if (odd) h += `<div class="stime">${fmtTime(sh.start)}–${fmtTime(sh.end)}</div>`;
+        for (const id of people) {
+          const name = esc(empName(id));
+          if (opts.edit) {
+            const bad = conflictFor(id, sh);
+            const sel = ui.sel && ui.sel.shiftId === sh.id && ui.sel.empId === id;
+            h += `<button class="chip${bad ? ' bad' : ''}${sel ? ' sel' : ''}" draggable="true" data-act="chip" data-shift="${sh.id}" data-emp="${id}" title="${name}${bad ? ' — conflict on record!' : ''}">${name}</button>`;
+          } else {
+            h += `<span class="chip${id === opts.me ? ' me' : ''}">${name}</span>`;
+          }
+        }
+        for (let i = people.length; i < sh.needed; i++) {
+          h += opts.edit ? `<button class="chip open" data-act="open" data-shift="${sh.id}">Open</button>` : `<span class="chip open">Open</span>`;
+        }
+        h += `</div>`;
+      }
+      h += `</div>`;
+    }
+  }
+  h += `</div></div>`;
+  return h;
+}
+
+/* =====================================================================
+   MANAGER
+   ===================================================================== */
+function managerTabs() {
+  const a = analyze();
+  const n = a.late.length + a.pending.length;
+  const t = (k, label, badge) => `<button class="tab${ui.mtab === k ? ' on' : ''}" data-act="mtab" data-k="${k}">${label}${badge ? `<span class="badge">${badge}</span>` : ''}</button>`;
+  return `<nav class="tabs wrap no-print">
+    ${t('schedule', 'Schedule')}${t('conflicts', 'Conflict review', n)}${t('shifts', 'Shifts')}${t('employees', 'Employees')}${t('settings', 'Settings')}
+  </nav>`;
+}
+
+function managerView() {
+  switch (ui.mtab) {
+    case 'conflicts': return mConflicts();
+    case 'shifts': return mShifts();
+    case 'employees': return mEmployees();
+    case 'settings': return mSettings();
+    default: return mSchedule();
+  }
+}
+
+function statusPill() {
+  const s = sched();
+  if (!s) return `<span class="pill grey">No draft yet</span>`;
+  if (!s.published) return `<span class="pill outline">Draft, not published</span>`;
+  if (s.dirty) return `<span class="pill outline">Unpublished changes</span>`;
+  return `<span class="pill green">Published ${fmtDT(s.published.at)}</span>`;
+}
+
+function mSchedule() {
+  const s = sched();
+  const a = analyze();
+  const head = `<div class="page-head">
+    <div><span class="hand">this week's puzzle, solved</span><h1>${weekLabel(S.week)}</h1>
+      <div class="row" style="margin-top:8px">${statusPill()}<span class="muted small">Conflicts ${isOpen() ? 'close' : 'closed'} ${fmtDT(deadlineMs())}</span></div></div>
+    <div class="actions no-print">
+      <button class="btn ${s ? 'btn-ghost' : 'btn-amber'}" data-act="generate">${I.spark}${s ? 'Regenerate' : 'Generate schedule'}</button>
+      ${s ? `<button class="btn btn-amber" data-act="publish" ${s.published && !s.dirty ? 'disabled' : ''}>${I.send}Publish</button>
+      <button class="btn btn-ghost" data-act="print">${I.print}Print</button>` : ''}
+    </div>
+  </div>`;
+
+  if (!s) {
+    return head + `<div class="stack">${flagsCard(a)}<div class="card empty-state">
+      <span class="hand">ready when you are</span>
+      <h2>No draft for this week yet</h2>
+      <p class="muted">Shiftwise builds the week around every on-time conflict, puts everyone on at least once, fills each shift, and gives people their hours. Anything it can't fill gets flagged for you.</p>
+      <button class="btn btn-amber" data-act="generate">${I.spark}Generate schedule</button>
+    </div></div>`;
+  }
+
+  return head + `<div class="stack">
+    ${flagsCard(a)}
+    ${rulesStrip(a)}
+    <div class="card">
+      <div class="print-title"><h2>${esc(S.store)} · ${weekLabel(S.week)}</h2></div>
+      ${ui.sel ? `<div class="selbar no-print"><span>Moving <strong>${esc(empName(ui.sel.empId))}</strong>. Tap an open spot or a name to swap.</span>
+        <span style="margin-left:auto" class="row"><button class="btn btn-sm btn-ghost" data-act="unassign">Remove from shift</button><button class="btn btn-sm btn-ghost" data-act="cancelsel">Cancel</button></span></div>` : ''}
+      ${gridHTML(S.week, { shifts: weekShifts(), asg: s.draft, edit: true })}
+      <div class="legend no-print">
+        <span><i style="background:var(--navy)"></i>Scheduled</span>
+        <span><i style="border:1.5px dashed var(--amber)"></i>Open spot</span>
+        <span><i style="background:var(--red)"></i>Scheduled over a conflict</span>
+        <span>Drag names between shifts, or tap a name then tap where it should go.</span>
+      </div>
+    </div>
+    ${hoursCard(a)}
+  </div>`;
+}
+
+function flagsCard(a) {
+  const items = [];
+  a.violations.forEach(v => items.push(`<div class="flag"><span class="flag-ico red">!</span><div class="flag-body">
+    <strong>${esc(empName(v.id))}</strong> is on ${DAY[pd(v.sh.date).getDay()]} ${esc(v.sh.label)} during a conflict on record (${esc(v.c.reason || describeTime(v.c))}).
+    <div class="flag-actions"><button class="btn btn-sm btn-danger" data-act="fixviolation" data-shift="${v.sh.id}" data-emp="${v.id}">Take them off this shift</button></div></div></div>`));
+  a.late.forEach(c => items.push(`<div class="flag"><span class="flag-ico amber">${flagSVG.replace('<svg', '<svg width="16" height="16" fill="currentColor"')}</span><div class="flag-body">
+    <strong>Late conflict: ${esc(empName(c.empId))}</strong> · ${esc(describeWhen(c))} · ${esc(describeTime(c))}${c.reason ? ` · “${esc(c.reason)}”` : ''}
+    <div class="muted small">Submitted ${fmtDT(c.submittedAt)}, after the deadline, so it wasn't used to build the schedule. Handle it personally.</div>
+    <div class="flag-actions"><button class="btn btn-sm btn-navy" data-act="honor" data-id="${c.id}">Honor it</button><button class="btn btn-sm btn-ghost" data-act="dismisslate" data-id="${c.id}">Don't honor</button></div></div></div>`));
+  a.pending.forEach(c => items.push(`<div class="flag"><span class="flag-ico navy">↻</span><div class="flag-body">
+    <strong>${esc(empName(c.empId))}</strong> has a new repeating conflict: ${esc(describeWhen(c))}, ${esc(describeTime(c))}. It's being honored. Approve it once and it applies every week.
+    <div class="flag-actions"><button class="btn btn-sm btn-navy" data-act="approve" data-id="${c.id}">Approve</button><button class="btn btn-sm btn-ghost" data-act="reject" data-id="${c.id}">Reject</button></div></div></div>`));
+  a.unfilled.forEach(u => items.push(`<div class="flag"><span class="flag-ico amber">${u.n}</span><div class="flag-body">
+    <strong>${DAY[pd(u.sh.date).getDay()]} ${fmtShort(u.sh.date)} ${esc(u.sh.label)}</strong>: ${u.n} open spot${u.n > 1 ? 's' : ''}. Nobody else is free without breaking a conflict or going past the hours they asked for.
+    <div class="flag-actions"><button class="btn btn-sm btn-ghost" data-act="open" data-shift="${u.sh.id}">Fill it myself</button></div></div></div>`));
+  a.missing.forEach(e => items.push(`<div class="flag"><span class="flag-ico red">0</span><div class="flag-body"><strong>${esc(e.name)}</strong> isn't on the schedule this week.</div></div>`));
+  a.over.forEach(e => items.push(`<div class="flag"><span class="flag-ico navy">+</span><div class="flag-body"><strong>${esc(e.name)}</strong> is scheduled ${fmtH(a.hrs[e.id])}, past the ${e.need + e.extra}h they asked for${a.count[e.id] === 1 ? ' (their one shift is longer than that)' : ''}.</div></div>`));
+  a.under.forEach(e => items.push(`<div class="flag"><span class="flag-ico navy">h</span><div class="flag-body"><strong>${esc(e.name)}</strong> has ${fmtH(a.hrs[e.id])} of the ${e.need}h they need.</div></div>`));
+
+  const pills = [];
+  if (a.late.length) pills.push(`<span class="pill amber">${flagSVG} ${a.late.length} late conflict${a.late.length > 1 ? 's' : ''}</span>`);
+  if (a.openSpots) pills.push(`<span class="pill outline">${a.openSpots} open spot${a.openSpots > 1 ? 's' : ''}</span>`);
+  if (a.pending.length) pills.push(`<span class="pill navy">${a.pending.length} to approve</span>`);
+  if (a.violations.length) pills.push(`<span class="pill red">${a.violations.length} conflict clash${a.violations.length > 1 ? 'es' : ''}</span>`);
+
+  if (!items.length) {
+    if (!a.hasDraft) return '';
+    return `<div class="card flags"><div class="allclear">${I.check.replace('<svg', '<svg width="22" height="22" style="stroke:currentColor;fill:none;stroke-width:3"')} Nothing flagged. Every spot is filled and every conflict is respected.</div></div>`;
+  }
+  return `<div class="card flags"><div class="flags-head"><h2>Flags</h2>${pills.join('')}<span class="muted small" style="margin-left:auto">Also emailed to you</span></div>${items.join('')}</div>`;
+}
+
+function rulesStrip(a) {
+  const n = S.employees.length;
+  const on = n - a.missing.length;
+  const rule = (ok, title, sub) => `<div class="rule"><span class="tick ${ok ? 'ok' : 'no'}">${ok ? '✓' : '✕'}</span><div><strong>${title}</strong><div class="muted">${sub}</div></div></div>`;
+  return `<div class="rules">
+    ${rule(!a.violations.length, 'No one over a conflict', a.violations.length ? `${a.violations.length} clash${a.violations.length > 1 ? 'es' : ''} to fix` : 'Every on-time conflict respected')}
+    ${rule(on === n, 'Everyone scheduled', `${on} of ${n} employees on at least once`)}
+    ${rule(true, 'Every spot filled or flagged', a.openSpots ? `${a.openSpots} open, all flagged above` : 'All shifts fully staffed')}
+    ${rule(true, 'Late conflicts flagged', a.lateAll.length ? `${a.lateAll.length} late · ${a.late.length} still to handle` : 'None came in late')}
+  </div>`;
+}
+
+function hoursCard(a) {
+  const rows = S.employees.map(e => {
+    const h = a.hrs[e.id], target = e.need + e.extra, max = Math.max(target, h, 1);
+    const pct = Math.min(100, h / max * 100), needAt = e.need / max * 100;
+    let st = h < e.need ? `<span class="pill red">${fmtH(e.need - h)} short</span>` : h <= target ? `<span class="pill green">On target</span>` : `<span class="pill navy">+${fmtH(h - target)} over</span>`;
+    if (!a.count[e.id]) st = `<span class="pill red">Not scheduled</span>`;
+    return `<tr><td><strong style="color:var(--navy)">${esc(e.name)}</strong></td><td>${a.count[e.id]}</td><td>${fmtH(h)}</td><td class="muted">${e.need}h${e.extra ? ` + ${e.extra}h extra` : ''}</td>
+      <td style="width:28%"><div class="bar"><i class="${h >= e.need ? 'full' : ''}" style="width:${pct}%"></i><b style="left:${needAt}%"></b></div></td><td>${st}</td></tr>`;
+  }).join('');
+  return `<div class="card hours"><div class="row spread" style="margin-bottom:8px"><h2>Hours this week</h2><span class="muted small">Black tick = hours needed</span></div>
+    <div class="table-scroll"><table><thead><tr><th>Employee</th><th>Shifts</th><th>Scheduled</th><th>Wants</th><th></th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+/* ---------- conflict review ---------- */
+function mConflicts() {
+  const relevant = S.conflicts.filter(c => ui.showAllConflicts || occursInWeek(c) || (c.repeats && c.status === 'pending'));
+  relevant.sort((a, b) => b.submittedAt - a.submittedAt);
+  const late = relevant.filter(isLateOpen);
+  const pend = relevant.filter(c => !isLateOpen(c) && c.repeats && c.status === 'pending');
+  const ok = relevant.filter(c => !isLateOpen(c) && !(c.repeats && c.status === 'pending') && c.status !== 'rejected');
+  const rej = relevant.filter(c => c.status === 'rejected');
+
+  const row = (c, actions, tag) => `<div class="rv"><div>
+      <div class="row" style="gap:8px"><strong>${esc(empName(c.empId))}</strong>${tag || ''}</div>
+      <div>${esc(describeWhen(c))} · ${esc(describeTime(c))}${c.reason ? ` · “${esc(c.reason)}”` : ''}</div>
+      <div class="muted small">Submitted ${fmtDT(c.submittedAt)}</div></div>
+      <div class="actions">${actions}</div></div>`;
+  const sec = (title, list, fn) => list.length ? `<div class="card"><div class="section-label">${title} · ${list.length}</div>${list.map(fn).join('')}</div>` : '';
+
+  const body =
+    sec('Late, handle personally', late, c => row(c, `<button class="btn btn-sm btn-navy" data-act="honor" data-id="${c.id}">Honor it</button><button class="btn btn-sm btn-ghost" data-act="dismisslate" data-id="${c.id}">Don't honor</button>`, `<span class="pill amber">${flagSVG} Late</span>`)) +
+    sec('New repeating, approve once', pend, c => row(c, `<button class="btn btn-sm btn-navy" data-act="approve" data-id="${c.id}">Approve</button><button class="btn btn-sm btn-ghost" data-act="reject" data-id="${c.id}">Reject</button>`, `<span class="pill navy">Repeats</span>`)) +
+    sec('On record', ok, c => row(c, `<button class="btn btn-sm btn-ghost" data-act="reject" data-id="${c.id}">Reject</button>`, c.repeats ? `<span class="pill green">Repeats · approved</span>` : (isLate(c) ? `<span class="pill green">Late · honored</span>` : ''))) +
+    sec('Rejected (employee sees “Declined”)', rej, c => row(c, `<button class="btn btn-sm btn-ghost" data-act="restore" data-id="${c.id}">Restore</button>`, `<span class="pill red">Rejected</span>`));
+
+  return `<div class="page-head">
+      <div><span class="hand">everything in one place</span><h1>Conflict review</h1>
+      <p class="muted" style="margin-top:6px">${weekLabel(S.week)} · deadline ${fmtDT(deadlineMs())} · <strong>${isOpen() ? timeLeft(deadlineMs()) : 'closed'}</strong></p></div>
+      <div class="actions"><button class="btn btn-ghost btn-sm" data-act="toggleall">${ui.showAllConflicts ? 'Only this week' : 'Show all conflicts'}</button>
+      <button class="btn btn-amber" data-act="generate">${I.spark}Generate schedule</button></div>
+    </div>
+    <div class="stack">${body || `<div class="card empty-state"><span class="hand">all quiet</span><h2>No conflicts for this week</h2><p class="muted">When employees submit conflicts they show up here. On-time ones are honored automatically.</p></div>`}</div>`;
+}
+
+/* ---------- shifts setup ---------- */
+function mShifts() {
+  const shifts = weekShifts();
+  const prev = S.shifts[addDays(S.week, -7)];
+  const days = weekDates(S.week).map(d => {
+    const list = shifts.filter(s => s.date === d);
+    return `<div class="card"><div class="row spread" style="margin-bottom:${list.length ? 10 : 0}px"><h3>${DAYLONG[pd(d).getDay()]} <span class="muted" style="font-weight:500">${fmtShort(d)}</span></h3>
+      <button class="btn btn-sm btn-ghost" data-act="addshift" data-date="${d}">${I.plus}Add shift</button></div>
+      ${list.length ? `<div class="table-scroll"><table><thead><tr><th>Name</th><th>Start</th><th>End</th><th>People needed</th><th>Hours</th><th></th></tr></thead><tbody>
+        ${list.map(s => `<tr>
+          <td><input class="sm" value="${esc(s.label)}" data-change="shift" data-id="${s.id}" data-f="label" style="min-width:110px"></td>
+          <td><input class="sm" type="time" value="${s.start}" data-change="shift" data-id="${s.id}" data-f="start"></td>
+          <td><input class="sm" type="time" value="${s.end}" data-change="shift" data-id="${s.id}" data-f="end"></td>
+          <td><input class="sm" type="number" min="1" max="30" value="${s.needed}" data-change="shift" data-id="${s.id}" data-f="needed" style="width:80px"></td>
+          <td class="muted">${fmtH(dur(s))}</td>
+          <td><button class="btn btn-sm btn-danger" data-act="delshift" data-id="${s.id}" aria-label="Delete shift">Delete</button></td></tr>`).join('')}
+      </tbody></table></div>` : `<p class="muted small">No shifts. Closed this day?</p>`}</div>`;
+  }).join('');
+  const total = shifts.reduce((t, s) => t + s.needed, 0), hours = shifts.reduce((t, s) => t + s.needed * dur(s), 0);
+  const want = S.employees.reduce((t, e) => t + e.need, 0);
+  return `<div class="page-head">
+      <div><span class="hand">set it once a week</span><h1>Shifts · ${weekLabel(S.week)}</h1>
+      <p class="muted" style="margin-top:6px">${shifts.length} shifts · ${total} spots · ${fmtH(hours)} of work · your team needs ${want}h</p></div>
+      <div class="actions">
+        ${prev ? `<button class="btn btn-ghost btn-sm" data-act="copyprev">Copy last week</button>` : ''}
+        <button class="btn btn-ghost btn-sm" data-act="template">Use Lunch + Dinner template</button>
+      </div></div>
+    <div class="stack">${days}</div>`;
+}
+
+/* ---------- employees ---------- */
+function mEmployees() {
+  return `<div class="page-head"><div><span class="hand">your crew</span><h1>Employees</h1>
+      <p class="muted" style="margin-top:6px">Add people here, then they sign in with their company login. Set the hours each one needs, plus any extra hours they've asked for.</p></div></div>
+    <div class="stack">
+    <div class="card"><div class="table-scroll"><table>
+      <thead><tr><th>Name</th><th>Hours needed / wk</th><th>Extra hours wanted</th><th></th></tr></thead><tbody>
+      ${S.employees.map(e => `<tr>
+        <td><input class="sm" value="${esc(e.name)}" data-change="emp" data-id="${e.id}" data-f="name" style="min-width:120px"></td>
+        <td><input class="sm" type="number" min="0" max="60" value="${e.need}" data-change="emp" data-id="${e.id}" data-f="need" style="width:90px"></td>
+        <td><input class="sm" type="number" min="0" max="40" value="${e.extra}" data-change="emp" data-id="${e.id}" data-f="extra" style="width:90px"></td>
+        <td style="text-align:right"><button class="btn btn-sm btn-danger" data-act="delemp" data-id="${e.id}">Remove</button></td></tr>`).join('')}
+      </tbody></table></div></div>
+    <div class="card"><h2 style="margin-bottom:12px">Add an employee</h2>
+      <form id="addemp" class="row" style="align-items:flex-end">
+        <label class="f" style="flex:2;min-width:160px">Name<input name="name" required placeholder="Jordan"></label>
+        <label class="f" style="flex:1;min-width:110px">Hours needed<input name="need" type="number" min="0" max="60" value="20"></label>
+        <label class="f" style="flex:1;min-width:110px">Extra hours<input name="extra" type="number" min="0" max="40" value="0"></label>
+        <button class="btn btn-amber" type="submit">${I.plus}Add</button>
+      </form></div>
+    </div>`;
+}
+
+/* ---------- settings ---------- */
+function mSettings() {
+  const log = S.testLog.slice().sort((a, b) => a.submittedAt - b.submittedAt);
+  return `<div class="page-head"><div><span class="hand">behind the scenes</span><h1>Settings</h1></div></div>
+  <div class="stack">
+    <div class="card"><h2>Store &amp; week</h2>
+      <div class="fgrid" style="margin-top:14px">
+        <label class="f">Store name<input value="${esc(S.store)}" data-change="store"></label>
+        <div class="row spread"><div><strong style="color:var(--navy)">Now scheduling: ${weekLabel(S.week)}</strong>
+          <div class="muted small">After you publish, move on to next week. Repeating conflicts carry over automatically.</div></div>
+          <button class="btn btn-ghost" data-act="nextweek">Start next week ${I.arrow}</button></div>
+      </div></div>
+
+    <div class="card"><h2>Conflict deadline</h2>
+      <p class="muted" style="margin-top:4px">Conflicts are due the day before you build the schedule. Anything later is flagged for you to handle personally.</p>
+      <div class="row" style="margin-top:14px;align-items:flex-end">
+        <label class="f" style="flex:1;min-width:220px">Deadline<input type="datetime-local" value="${dtLocal(S.deadline)}" data-change="deadline"></label>
+        <span class="pill ${isOpen() ? 'green' : 'grey'}" style="margin-bottom:10px">${isOpen() ? 'Open · ' + timeLeft(deadlineMs()) : 'Closed'}</span>
+        ${isOpen() ? `<button class="btn btn-navy" data-act="closenow">Close conflicts now</button>` : `<button class="btn btn-ghost" data-act="reopen">Reopen for 24 hours</button>`}
+      </div></div>
+
+    <div class="card"><div class="row spread"><div><h2>Test log</h2>
+      <p class="muted" style="margin-top:4px">Time from opening the conflict form to tapping Submit, recorded automatically. Add notes on questions or problems.</p></div>
+      <div class="actions"><button class="btn btn-sm btn-ghost" data-act="copylog" ${log.length ? '' : 'disabled'}>Copy as table</button><button class="btn btn-sm btn-danger" data-act="clearlog" ${log.length ? '' : 'disabled'}>Clear</button></div></div>
+      ${log.length ? `<div class="table-scroll" style="margin-top:12px"><table><thead><tr><th>Employee</th><th>Submitted</th><th>Time taken</th><th>On time?</th><th>Notes</th></tr></thead><tbody>
+        ${log.map(l => `<tr><td><strong style="color:var(--navy)">${esc(l.name)}</strong></td><td>${fmtDT(l.submittedAt)}</td><td>${l.seconds}s</td>
+          <td>${l.late ? '<span class="pill amber">Late</span>' : '<span class="pill green">On time</span>'}</td>
+          <td><input class="sm" value="${esc(l.note || '')}" placeholder="Questions, problems…" data-change="lognote" data-id="${l.id}" style="min-width:180px"></td></tr>`).join('')}
+      </tbody></table></div>` : `<p class="muted small" style="margin-top:12px">No submissions yet.</p>`}
+    </div>
+
+    <div class="card"><h2>Data</h2>
+      <p class="muted" style="margin-top:4px">Everything is saved in this browser only.</p>
+      <div class="actions" style="margin-top:14px">
+        <button class="btn btn-ghost" data-act="reset">Reset for classmate test</button>
+        <button class="btn btn-ghost" data-act="demo">Load demo week</button>
+      </div>
+      <p class="muted small" style="margin-top:10px"><strong>Classmate test:</strong> 8 employees, no conflicts, deadline open. Have classmates sign in and enter conflicts, tap <em>Close conflicts now</em>, have one more classmate submit late, then generate.<br><strong>Demo week:</strong> sample conflicts with Marcus's late wedding request, like in the ad.</p>
+    </div>
+  </div>`;
+}
+
+/* =====================================================================
+   EMPLOYEE
+   ===================================================================== */
+function employeeTabs() {
+  const t0 = todayISO();
+  const mine = S.conflicts.filter(c => c.empId === S.session && (c.repeats ? (!c.until || c.until >= t0) : c.date >= t0)).length;
+  const t = (k, label, b) => `<button class="tab${ui.etab === k ? ' on' : ''}" data-act="etab" data-k="${k}">${label}${b ? `<span class="badge">${b}</span>` : ''}</button>`;
+  return `<nav class="tabs wrap no-print">${t('home', 'Schedule')}${t('mine', 'My conflicts', mine)}</nav>`;
+}
+function employeeView(e) { return ui.etab === 'mine' ? eMine(e) : eHome(e); }
+
+function latestPublished() {
+  if (S.schedules[S.week] && S.schedules[S.week].published) return S.week;
+  const ks = Object.keys(S.schedules).filter(k => S.schedules[k].published && k <= S.week).sort().reverse();
+  return ks[0] || null;
+}
+
+function eHome(e) {
+  const pubWk = latestPublished();
+  const pub = pubWk ? S.schedules[pubWk].published : null;
+  let out = '';
+
+  if (pub && (S.seen[e.id] || 0) < pub.at) {
+    out += `<div class="notice"><span class="hand">fresh off the press!</span><span>The schedule for <strong>${weekLabel(pubWk)}</strong> is posted. It's also in your email.</span><button class="btn btn-sm btn-ghost" data-act="seen">Got it</button></div>`;
+  }
+  const declined = S.conflicts.filter(c => c.empId === e.id && c.status === 'rejected' && occursInWeek(c));
+  if (declined.length) out += `<div class="notice" style="background:var(--red)"><span>Your manager declined ${declined.length} conflict${declined.length > 1 ? 's' : ''} for ${weekLabel(S.week)}. See <button class="linkbtn" data-act="etab" data-k="mine">My conflicts</button>, and talk to them if you have questions.</span></div>`;
+
+  const open = isOpen();
+  out += `<div class="reminder${open ? '' : ' closed'}">
+    <div><span class="hand">${open ? 'heads up!' : 'deadline passed'}</span>
+      <h2>Conflicts for ${weekLabel(S.week)}</h2>
+      <p class="muted" style="margin-top:4px">${open
+        ? `Due <strong>${fmtDT(deadlineMs())}</strong> · ${timeLeft(deadlineMs())}. Enter anything you can't work, and you won't be scheduled then.`
+        : `You can still submit, but late conflicts aren't used to build the schedule. Your manager will handle them personally.`}</p></div>
+    <button class="btn btn-amber" data-act="newconflict">${I.plus}Add conflict</button>
+  </div>`;
+
+  if (!pub) {
+    out += `<div class="card empty-state"><span class="hand">nothing yet</span><h2>No schedule posted yet</h2><p class="muted">You'll get a notification and an email when your manager publishes it.</p></div>`;
+    return `<div class="stack">${out}</div>`;
+  }
+  const mineSh = pub.shifts.filter(s => (pub.asg[s.id] || []).includes(e.id)).sort((a, b) => a.date.localeCompare(b.date) || toMin(a.start) - toMin(b.start));
+  const hrs = mineSh.reduce((t, s) => t + dur(s), 0);
+  out += `<div class="card"><div class="row spread" style="margin-bottom:12px"><div><h2>My shifts · ${weekLabel(pubWk)}</h2><p class="muted small">${mineSh.length} shift${mineSh.length === 1 ? '' : 's'} · ${fmtH(hrs)}</p></div></div>
+    ${mineSh.length ? `<div class="myshifts">${mineSh.map(s => `<div class="myshift"><strong>${fmtDate(s.date)}</strong><span>${esc(s.label)} · ${fmtTime(s.start)} – ${fmtTime(s.end)}</span></div>`).join('')}</div>` : `<p class="muted">You're not on the schedule this week.</p>`}
+  </div>
+  <div class="card"><div class="print-title"><h2>${esc(S.store)} · ${weekLabel(pubWk)}</h2></div>
+    <div class="row spread" style="margin-bottom:10px"><h2 class="no-print">Team schedule</h2><button class="btn btn-sm btn-ghost no-print" data-act="print">${I.print}Print</button></div>
+    ${gridHTML(pubWk, { shifts: pub.shifts, asg: pub.asg, me: e.id })}
+    <div class="legend no-print"><span><i style="background:var(--amber)"></i>You</span><span><i style="background:var(--navy)"></i>Teammates</span></div>
+  </div>`;
+  return `<div class="stack">${out}</div>`;
+}
+
+function empStatus(c) {
+  if (c.status === 'rejected') return `<span class="pill red">Declined</span>`;
+  if (isLateOpen(c)) return `<span class="pill amber">Late · manager will review</span>`;
+  if (isLate(c) && c.lateHandled) return `<span class="pill green">Honored</span>`;
+  if (c.repeats && c.status === 'pending') return `<span class="pill navy">Waiting for approval</span>`;
+  if (c.repeats) return `<span class="pill green">Approved · repeats</span>`;
+  return `<span class="pill green">On record</span>`;
+}
+
+function eMine(e) {
+  const t = todayISO();
+  const list = S.conflicts.filter(c => c.empId === e.id);
+  const isPast = c => c.repeats ? (c.until && c.until < t) : c.date < t;
+  list.sort((a, b) => (isPast(a) - isPast(b)) || a.date.localeCompare(b.date));
+  return `<div class="page-head"><div><span class="hand">only you and your manager see these</span><h1>My conflicts</h1></div>
+    <button class="btn btn-amber" data-act="newconflict">${I.plus}Add conflict</button></div>
+    ${list.length ? `<div class="clist">${list.map(c => {
+      const d = pd(c.date);
+      return `<button class="citem${isPast(c) ? ' past' : ''}" data-act="viewconflict" data-id="${c.id}">
+        <span class="cdate"><span><small>${c.repeats ? 'Every' : DAY[d.getDay()]}</small>${c.repeats ? DAY[d.getDay()] : d.getDate()}</span></span>
+        <span class="grow"><strong>${esc(c.reason || 'Conflict')}</strong><span class="muted small">${esc(describeWhen(c))} · ${esc(describeTime(c))}</span></span>
+        ${empStatus(c)}</button>`;
+    }).join('')}</div>` : `<div class="card empty-state"><span class="hand">a clean slate</span><h2>No conflicts yet</h2><p class="muted">Add a time you can't work, like a class, a family event or a standing day off, and you won't be scheduled then.</p><button class="btn btn-amber" data-act="newconflict">${I.plus}Add conflict</button></div>`}`;
+}
+
+/* ---------- modals ---------- */
+function openModal(html) { $('#modal').innerHTML = `<div class="overlay" data-act="overlay">${html}</div>`; const f = $('#modal input, #modal button.pick'); if (f) f.focus(); }
+function closeModal() { $('#modal').innerHTML = ''; }
+
+function conflictForm(c) {
+  const edit = !!c;
+  c = c || { date: '', wholeDay: false, start: '16:00', end: '22:00', repeats: false, until: '', reason: '' };
+  const late = !isOpen();
+  return `<div class="sheet" role="dialog" aria-label="${edit ? 'Edit' : 'New'} conflict">
+    <div class="sheet-head">${markSVG()}Shiftwise<button class="x" data-act="close" aria-label="Close">×</button></div>
+    <form class="sheet-body fgrid" id="cform" data-edit="${edit ? c.id : ''}" novalidate>
+      <h2>${edit ? 'Edit conflict' : 'New conflict'}</h2>
+      <label class="f">Date<input type="date" name="date" value="${c.date}" min="${todayISO()}" required></label>
+      <div class="toggle-row"><span>Whole day</span><label class="switch"><input type="checkbox" name="wholeDay" ${c.wholeDay ? 'checked' : ''} aria-label="Whole day"><i></i></label></div>
+      <div class="two" data-times ${c.wholeDay ? 'hidden' : ''}>
+        <label class="f">From<input type="time" name="start" value="${c.start}"></label>
+        <label class="f">To<input type="time" name="end" value="${c.end}"></label>
+      </div>
+      <div class="toggle-row"><span>Repeats every week</span><label class="switch"><input type="checkbox" name="repeats" ${c.repeats ? 'checked' : ''} aria-label="Repeats every week"><i></i></label></div>
+      <label class="f" data-until ${c.repeats ? '' : 'hidden'}>Until (optional)<input type="date" name="until" value="${c.until}"></label>
+      <label class="f">Reason<input name="reason" value="${esc(c.reason)}" maxlength="80" placeholder="Sister's wedding"></label>
+      <p class="err" id="cerr" hidden></p>
+      ${late ? `<p class="muted small">The deadline for ${weekLabel(S.week)} has passed, so if this affects that week your manager will handle it personally.</p>` : `<p class="muted small">Due ${fmtDT(deadlineMs())}. Your coworkers can't see your conflicts.</p>`}
+      <button class="btn btn-navy btn-block" type="submit" style="padding:15px;font-size:1.1rem">${edit ? 'Save changes' : 'Submit'}</button>
+    </form></div>`;
+}
+
+function submittedSheet(late, edit) {
+  return `<div class="sheet" role="dialog" aria-label="Submitted">
+    <div class="sheet-head">${markSVG()}Shiftwise<button class="x" data-act="close" aria-label="Close">×</button></div>
+    <div class="done">
+      <div class="check">${I.check}</div>
+      <h2>${edit ? 'Saved' : 'Submitted'}</h2>
+      <p class="muted">${late ? 'This came in after the deadline, so your manager will handle it personally.' : 'Your conflict is on record. You won’t be scheduled then.'}</p>
+      ${edit ? `<button class="btn btn-navy" data-act="close" style="margin-top:22px;min-width:140px">Done</button>` : `
+      <p style="margin-top:18px;font-weight:700;color:var(--muted)">Submit another conflict?</p>
+      <div class="row" style="justify-content:center;margin-top:12px">
+        <button class="btn btn-ghost" data-act="newconflict" style="min-width:120px">Yes</button>
+        <button class="btn btn-navy" data-act="close" style="min-width:120px">No</button>
+      </div>`}
+    </div></div>`;
+}
+
+function conflictDetail(c) {
+  return `<div class="sheet" role="dialog" aria-label="Conflict">
+    <div class="sheet-head">${markSVG()}Shiftwise<button class="x" data-act="close" aria-label="Close">×</button></div>
+    <div class="sheet-body">
+      <h2>${esc(c.reason || 'Conflict')}</h2>
+      <p><strong>${esc(describeWhen(c))}</strong></p>
+      <p class="muted">${esc(describeTime(c))}</p>
+      <p class="muted small" style="margin-top:8px">Submitted ${fmtDT(c.submittedAt)}</p>
+      <div style="margin-top:12px">${empStatus(c)}</div>
+      <div class="row" style="margin-top:22px">
+        <button class="btn btn-navy" data-act="editconflict" data-id="${c.id}">Edit</button>
+        <button class="btn btn-danger" data-act="delconflict" data-id="${c.id}">Delete</button>
+      </div>
+      <p class="muted small" style="margin-top:12px">Editing re-submits it. If the deadline has passed, it counts as late.</p>
+    </div></div>`;
+}
+
+function pickerSheet(shiftId) {
+  const sh = shiftById(shiftId);
+  const a = analyze();
+  const list = S.employees.map(e => ({ e, why: blocker(e.id, sh, null) }))
+    .sort((x, y) => (!!x.why - !!y.why) || ((y.e.need - a.hrs[y.e.id]) - (x.e.need - a.hrs[x.e.id])));
+  return `<div class="sheet" role="dialog" aria-label="Fill open spot">
+    <div class="sheet-head">${markSVG()}Fill a spot<button class="x" data-act="close" aria-label="Close">×</button></div>
+    <div class="sheet-body">
+      <h2 style="font-size:1.4rem">${DAYLONG[pd(sh.date).getDay()]} ${esc(sh.label)}</h2>
+      <p class="muted" style="margin:-8px 0 14px">${fmtShort(sh.date)} · ${fmtTime(sh.start)} – ${fmtTime(sh.end)} · ${fmtH(dur(sh))}</p>
+      ${list.map(({ e, why }) => `<button class="pick" data-act="pickemp" data-shift="${sh.id}" data-emp="${e.id}" ${why ? 'disabled' : ''}>
+        <span class="avatar">${esc(e.name[0])}</span><span class="grow"><strong>${esc(e.name)}</strong><br><span class="muted small">${why ? esc(why) : `${fmtH(a.hrs[e.id])} of ${e.need}h needed${e.extra ? ` (+${e.extra}h extra)` : ''}${a.hrs[e.id] + dur(sh) > e.need + e.extra ? ` · <strong style="color:var(--red)">would go ${fmtH(a.hrs[e.id] + dur(sh) - e.need - e.extra)} over</strong>` : ''}`}</span></span></button>`).join('')}
+    </div></div>`;
+}
+
+/* ---------- editing the draft ---------- */
+function blocker(empId, sh, ignoreShiftId) {
+  const asg = sched().draft;
+  if ((asg[sh.id] || []).includes(empId)) return 'Already on this shift';
+  const c = conflictFor(empId, sh);
+  if (c) return `Conflict on record${c.reason ? `: ${c.reason}` : ''}`;
+  const other = weekShifts().find(o => o.id !== sh.id && o.id !== ignoreShiftId && (asg[o.id] || []).includes(empId) && shiftsOverlap(o, sh));
+  if (other) return `Already working ${other.label} then`;
+  return '';
+}
+function touched() { const s = sched(); if (s.published) s.dirty = true; save(); }
+function moveTo(empId, fromId, toId) {
+  const s = sched(), to = shiftById(toId);
+  if (!to) return;
+  if (fromId === toId) { ui.sel = null; return render(); }
+  s.draft[toId] = s.draft[toId] || [];
+  if (s.draft[toId].filter(emp).length >= to.needed) return toast('That shift is full. Drop onto a name to swap.');
+  const why = blocker(empId, to, fromId);
+  if (why) return toast(`Can't move ${empName(empId)}: ${why.toLowerCase()}.`);
+  if (fromId) s.draft[fromId] = (s.draft[fromId] || []).filter(x => x !== empId);
+  s.draft[toId].push(empId);
+  ui.sel = null; touched(); render();
+}
+function swap(aEmp, aShift, bEmp, bShift) {
+  if (aShift === bShift) { ui.sel = null; return render(); }
+  const s = sched(), A = shiftById(aShift), B = shiftById(bShift);
+  if ((s.draft[bShift] || []).includes(aEmp) || (s.draft[aShift] || []).includes(bEmp)) return toast('They’re already on each other’s shift.');
+  const w1 = blocker(aEmp, B, aShift), w2 = blocker(bEmp, A, bShift);
+  if (w1) return toast(`Can't swap: ${empName(aEmp)}: ${w1.toLowerCase()}.`);
+  if (w2) return toast(`Can't swap: ${empName(bEmp)}: ${w2.toLowerCase()}.`);
+  s.draft[aShift] = s.draft[aShift].map(x => x === aEmp ? bEmp : x);
+  s.draft[bShift] = s.draft[bShift].map(x => x === bEmp ? aEmp : x);
+  ui.sel = null; touched(); render();
+  toast(`Swapped ${empName(aEmp)} and ${empName(bEmp)}.`);
+}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 3400); }
+
+/* =====================================================================
+   ACTIONS
+   ===================================================================== */
+const A = {
+  login: el => { S.session = el.dataset.id; ui.sel = null; ui.mtab = 'schedule'; ui.etab = 'home'; save(); render(); window.scrollTo(0, 0); },
+  logout: () => { S.session = null; save(); render(); },
+  mtab: el => { ui.mtab = el.dataset.k; ui.sel = null; render(); },
+  etab: el => { ui.etab = el.dataset.k; render(); },
+  close: () => closeModal(),
+  overlay: (el, ev) => { if (ev.target === el) closeModal(); },
+  print: () => window.print(),
+  seen: () => { const w = latestPublished(); if (w) S.seen[S.session] = S.schedules[w].published.at; save(); render(); },
+
+  /* employee */
+  newconflict: () => { ui.editId = null; ui.formOpenedAt = Date.now(); openModal(conflictForm(null)); },
+  viewconflict: el => { const c = S.conflicts.find(x => x.id === el.dataset.id); if (c) openModal(conflictDetail(c)); },
+  editconflict: el => { const c = S.conflicts.find(x => x.id === el.dataset.id); if (c) openModal(conflictForm(c)); },
+  delconflict: el => {
+    if (!confirm('Delete this conflict? You could be scheduled during that time.')) return;
+    S.conflicts = S.conflicts.filter(c => c.id !== el.dataset.id); save(); closeModal(); render(); toast('Conflict deleted.');
+  },
+
+  /* manager: schedule */
+  generate: () => {
+    if (!weekShifts().length) { ui.mtab = 'shifts'; render(); return toast('Add shifts for this week first.'); }
+    if (isOpen() && !confirm(`The conflict deadline (${fmtDT(deadlineMs())}) hasn't passed yet. People can still add conflicts. Generate anyway?`)) return;
+    const s = sched();
+    if (s && !confirm('Regenerate? This replaces the current draft, including any changes you made by hand.')) return;
+    const asg = generate();
+    S.schedules[S.week] = { draft: asg, published: s ? s.published : null, dirty: !!(s && s.published) };
+    ui.mtab = 'schedule'; ui.sel = null; save(); render();
+    const a = analyze();
+    const n = a.late.length + a.openSpots + a.pending.length;
+    toast(n ? `Draft ready. ${n} item${n > 1 ? 's' : ''} flagged at the top (also emailed to you).` : 'Draft ready. Nothing flagged!');
+  },
+  publish: () => {
+    const a = analyze();
+    if (a.violations.length) return toast('Fix the conflict clashes (in red) before publishing.');
+    const left = a.late.length;
+    let msg = [];
+    if (a.openSpots) msg.push(`${a.openSpots} open spot${a.openSpots > 1 ? 's' : ''}`);
+    if (left) msg.push(`${left} late conflict${left > 1 ? 's' : ''} not handled`);
+    if (msg.length && !confirm(`Publish with ${msg.join(' and ')}?`)) return;
+    const s = sched();
+    s.published = { shifts: clone(weekShifts()), asg: clone(s.draft), at: Date.now() };
+    s.dirty = false; save(); render();
+    toast(`Published! ${S.employees.length} employees notified and emailed.`);
+  },
+  chip: el => {
+    const { shift, emp: id } = el.dataset;
+    if (ui.sel && !(ui.sel.shiftId === shift && ui.sel.empId === id)) return swap(ui.sel.empId, ui.sel.shiftId, id, shift);
+    ui.sel = ui.sel ? null : { shiftId: shift, empId: id };
+    render();
+  },
+  open: el => {
+    if (!sched()) return;
+    if (ui.sel) return moveTo(ui.sel.empId, ui.sel.shiftId, el.dataset.shift);
+    openModal(pickerSheet(el.dataset.shift));
+  },
+  pickemp: el => { closeModal(); moveTo(el.dataset.emp, null, el.dataset.shift); },
+  unassign: () => {
+    const s = sched(); if (!ui.sel) return;
+    s.draft[ui.sel.shiftId] = s.draft[ui.sel.shiftId].filter(x => x !== ui.sel.empId);
+    toast(`${empName(ui.sel.empId)} removed. That spot is now open.`);
+    ui.sel = null; touched(); render();
+  },
+  cancelsel: () => { ui.sel = null; render(); },
+  fixviolation: el => { const s = sched(); s.draft[el.dataset.shift] = s.draft[el.dataset.shift].filter(x => x !== el.dataset.emp); touched(); render(); },
+
+  /* manager: conflicts */
+  honor: el => {
+    const c = S.conflicts.find(x => x.id === el.dataset.id); if (!c) return;
+    c.status = 'approved'; c.lateHandled = true;
+    const s = sched(); let removed = [];
+    if (s) weekShifts().forEach(sh => { if ((s.draft[sh.id] || []).includes(c.empId) && hits(c, sh)) { s.draft[sh.id] = s.draft[sh.id].filter(x => x !== c.empId); removed.push(sh); } });
+    if (s && removed.length) touched(); else save();
+    render();
+    toast(removed.length ? `Honored. ${empName(c.empId)} taken off ${removed.map(r => `${DAY[pd(r.date).getDay()]} ${r.label}`).join(', ')}. Fill the open spot${removed.length > 1 ? 's' : ''}.` : `Honored. ${empName(c.empId)} wasn't scheduled then anyway.`);
+  },
+  dismisslate: el => { const c = S.conflicts.find(x => x.id === el.dataset.id); if (!c) return; c.status = 'rejected'; c.lateHandled = true; save(); render(); toast(`Kept the schedule as is. ${empName(c.empId)} sees it as declined.`); },
+  approve: el => { const c = S.conflicts.find(x => x.id === el.dataset.id); if (!c) return; c.status = 'approved'; save(); render(); toast('Approved. It applies every week from now on.'); },
+  reject: el => {
+    const c = S.conflicts.find(x => x.id === el.dataset.id); if (!c) return;
+    if (!confirm(`Reject ${empName(c.empId)}'s conflict (${describeWhen(c)})? They'll see it as declined and could be scheduled then.`)) return;
+    c.status = 'rejected'; save(); render(); toast('Rejected. The employee sees “Declined”.');
+  },
+  restore: el => { const c = S.conflicts.find(x => x.id === el.dataset.id); if (!c) return; c.status = c.repeats ? 'approved' : 'received'; if (isLate(c)) c.lateHandled = true; save(); render(); toast('Restored. It’s honored again.'); },
+  toggleall: () => { ui.showAllConflicts = !ui.showAllConflicts; render(); },
+
+  /* manager: shifts */
+  addshift: el => { (S.shifts[S.week] = S.shifts[S.week] || []).push({ id: uid(), date: el.dataset.date, label: 'Shift', start: '11:00', end: '16:00', needed: 2 }); save(); render(); },
+  delshift: el => {
+    S.shifts[S.week] = S.shifts[S.week].filter(s => s.id !== el.dataset.id);
+    const s = sched(); if (s) { delete s.draft[el.dataset.id]; touched(); } else save();
+    render();
+  },
+  template: () => { if (weekShifts().length && !confirm('Replace this week’s shifts with the Lunch + Dinner template?')) return; S.shifts[S.week] = template(S.week); clearDraftShifts(); save(); render(); },
+  copyprev: () => {
+    if (weekShifts().length && !confirm('Replace this week’s shifts with last week’s?')) return;
+    S.shifts[S.week] = S.shifts[addDays(S.week, -7)].map(s => Object.assign({}, s, { id: uid(), date: addDays(s.date, 7) }));
+    clearDraftShifts(); save(); render();
+  },
+
+  /* manager: employees */
+  delemp: el => {
+    const e = emp(el.dataset.id); if (!e || !confirm(`Remove ${e.name}? Their conflicts are removed too.`)) return;
+    S.employees = S.employees.filter(x => x.id !== e.id);
+    S.conflicts = S.conflicts.filter(c => c.empId !== e.id);
+    Object.values(S.schedules).forEach(s => Object.keys(s.draft).forEach(k => s.draft[k] = s.draft[k].filter(x => x !== e.id)));
+    save(); render();
+  },
+
+  /* manager: settings */
+  closenow: () => { S.deadline = Date.now(); save(); render(); toast('Conflicts closed. Anything submitted now is flagged as late.'); },
+  reopen: () => { S.deadline = Date.now() + 864e5; save(); render(); toast('Conflicts reopened for 24 hours.'); },
+  nextweek: () => {
+    const s = sched();
+    if (!(s && s.published) && !confirm(`${weekLabel(S.week)} hasn't been published. Move on anyway?`)) return;
+    const prev = S.week;
+    S.week = addDays(S.week, 7);
+    S.deadline = S.deadline + 7 * 864e5;
+    if (!S.shifts[S.week]) S.shifts[S.week] = (S.shifts[prev] || template(prev)).map(x => Object.assign({}, x, { id: uid(), date: addDays(x.date, 7) }));
+    save(); ui.mtab = 'schedule'; render(); toast(`Now scheduling ${weekLabel(S.week)}. Shifts copied from last week.`);
+  },
+  copylog: () => {
+    const rows = [['Employee', 'Submitted', 'Seconds', 'Late', 'Notes']].concat(S.testLog.map(l => [l.name, fmtDT(l.submittedAt), l.seconds, l.late ? 'yes' : 'no', l.note || '']));
+    const text = rows.map(r => r.join('\t')).join('\n');
+    try { navigator.clipboard.writeText(text).then(() => toast('Copied. Paste it into a spreadsheet or evidence.md.'), () => toast('Copy failed. Select the table instead.')); } catch (e) { toast('Copy failed. Select the table instead.'); }
+  },
+  clearlog: () => { if (confirm('Clear the test log?')) { S.testLog = []; save(); render(); } },
+  reset: () => { if (!confirm('Reset everything for a fresh classmate test? This erases all conflicts, schedules and the test log.')) return; const keep = S.session === 'manager' ? 'manager' : null; S = freshState(); S.session = keep; save(); ui.mtab = 'schedule'; render(); toast('Fresh test ready: 8 employees, no conflicts.'); },
+  demo: () => { if (!confirm('Load the demo week? This replaces all current data.')) return; S = demoState(); save(); ui.mtab = 'schedule'; render(); toast('Demo week loaded. Try Generate schedule.'); },
+};
+
+function clearDraftShifts() {
+  const s = sched(); if (!s) return;
+  const ids = new Set(weekShifts().map(x => x.id));
+  Object.keys(s.draft).forEach(k => { if (!ids.has(k)) delete s.draft[k]; });
+  if (s.published) s.dirty = true;
+}
+
+/* ---------- event wiring ---------- */
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const fn = A[el.dataset.act];
+  if (fn) fn(el, ev);
+});
+
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape') { if ($('#modal').innerHTML) closeModal(); else if (ui.sel) { ui.sel = null; render(); } }
+});
+
+document.addEventListener('change', ev => {
+  const el = ev.target;
+  // conflict form toggles
+  if (el.form && el.form.id === 'cform') {
+    if (el.name === 'wholeDay') el.form.querySelector('[data-times]').hidden = el.checked;
+    if (el.name === 'repeats') el.form.querySelector('[data-until]').hidden = !el.checked;
+    return;
+  }
+  const k = el.dataset.change;
+  if (!k) return;
+  if (k === 'shift') {
+    const sh = (S.shifts[S.week] || []).find(s => s.id === el.dataset.id); if (!sh) return;
+    const f = el.dataset.f;
+    let v = el.value;
+    if (f === 'needed') v = Math.max(1, Math.min(30, parseInt(v, 10) || 1));
+    if ((f === 'start' || f === 'end') && !v) return render();
+    const before = sh[f]; sh[f] = v;
+    if (toMin(sh.end) <= toMin(sh.start)) { sh[f] = before; toast('End time has to be after the start time.'); return render(); }
+    if (f === 'label' && !String(v).trim()) sh.label = 'Shift';
+    const s = sched(); if (s && s.published) s.dirty = true;
+    save(); render();
+  } else if (k === 'emp') {
+    const e = emp(el.dataset.id); if (!e) return;
+    if (el.dataset.f === 'name') { if (el.value.trim()) e.name = el.value.trim(); }
+    else e[el.dataset.f] = Math.max(0, parseInt(el.value, 10) || 0);
+    save(); render();
+  } else if (k === 'store') { S.store = el.value.trim() || 'My store'; save(); render(); }
+  else if (k === 'deadline') { if (el.value) { S.deadline = parseDT(el.value) + 59999; save(); render(); } }
+  else if (k === 'lognote') { const l = S.testLog.find(x => x.id === el.dataset.id); if (l) { l.note = el.value; save(); } }
+});
+
+document.addEventListener('submit', ev => {
+  ev.preventDefault();
+  const f = ev.target;
+  if (f.id === 'addemp') {
+    const name = f.name.value.trim(); if (!name) return;
+    S.employees.push({ id: uid(), name, need: Math.max(0, parseInt(f.need.value, 10) || 0), extra: Math.max(0, parseInt(f.extra.value, 10) || 0) });
+    save(); render(); toast(`${name} added. They can sign in now.`);
+    return;
+  }
+  if (f.id === 'cform') {
+    const err = m => { const e = $('#cerr'); e.textContent = m; e.hidden = false; };
+    const date = f.date.value, wholeDay = f.wholeDay.checked, repeats = f.repeats.checked;
+    const start = wholeDay ? '00:00' : f.start.value, end = wholeDay ? '23:59' : f.end.value;
+    const until = repeats ? f.until.value : '';
+    if (!date) return err('Pick a date.');
+    if (date < todayISO() && !f.dataset.edit) return err('That date has already passed.');
+    if (!wholeDay && (!start || !end || toMin(end) <= toMin(start))) return err('The end time has to be after the start time.');
+    if (until && until < date) return err('“Until” has to be after the date.');
+    const now = Date.now();
+    const fields = { date, wholeDay, start, end, repeats, until, reason: f.reason.value.trim(), submittedAt: now, status: repeats ? 'pending' : 'received', lateHandled: false };
+    let c;
+    if (f.dataset.edit) {
+      c = S.conflicts.find(x => x.id === f.dataset.edit);
+      if (!c) return closeModal();
+      Object.assign(c, fields);
+    } else {
+      c = Object.assign({ id: uid(), empId: S.session }, fields);
+      S.conflicts.push(c);
+      S.testLog.push({ id: uid(), name: empName(S.session), openedAt: ui.formOpenedAt || now, submittedAt: now, seconds: Math.max(1, Math.round((now - (ui.formOpenedAt || now)) / 1000)), late: isLate(c), note: '' });
+    }
+    save(); render();
+    openModal(submittedSheet(isLate(c), !!f.dataset.edit));
+  }
+});
+
+/* drag & drop (desktop); tap-to-move works everywhere */
+document.addEventListener('dragstart', ev => {
+  const el = ev.target.closest && ev.target.closest('.chip[draggable]');
+  if (!el) return;
+  ui.drag = { empId: el.dataset.emp, shiftId: el.dataset.shift };
+  ev.dataTransfer.effectAllowed = 'move';
+  try { ev.dataTransfer.setData('text/plain', el.dataset.emp); } catch (e) {}
+  el.classList.add('dragging');
+});
+document.addEventListener('dragend', () => { ui.drag = null; document.querySelectorAll('.drop-hover,.dragging').forEach(x => x.classList.remove('drop-hover', 'dragging')); });
+document.addEventListener('dragover', ev => {
+  if (!ui.drag) return;
+  const z = ev.target.closest('[data-drop]');
+  if (!z) return;
+  ev.preventDefault();
+  document.querySelectorAll('.drop-hover').forEach(x => x !== z.parentElement && x.classList.remove('drop-hover'));
+  z.parentElement.classList.add('drop-hover');
+});
+document.addEventListener('drop', ev => {
+  if (!ui.drag) return;
+  const z = ev.target.closest('[data-drop]');
+  if (!z) return;
+  ev.preventDefault();
+  const d = ui.drag; ui.drag = null;
+  const onChip = ev.target.closest('.chip[data-emp]');
+  if (onChip && onChip.dataset.shift !== d.shiftId) swap(d.empId, d.shiftId, onChip.dataset.emp, onChip.dataset.shift);
+  else moveTo(d.empId, d.shiftId, z.dataset.drop);
+});
+
+/* keep countdowns fresh */
+setInterval(() => { if (!$('#modal').innerHTML && !document.activeElement.matches('input,select,textarea')) render(); }, 60000);
+
+render();
+
+/* ---------- side decorations ----------
+   Props from the ad (sticky notes, name chips, flags, pizza) float in the empty
+   side gutters. Each moves at its own speed as you scroll and loops forever.   */
+(function deco() {
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const layer = document.createElement('div');
+  layer.id = 'deco'; layer.setAttribute('aria-hidden', 'true');
+  document.body.prepend(layer);
+  const CONTENT = 1180;
+  let items = [], H = 0, ticking = false;
+
+  const slice = '<svg viewBox="-6 -44 116 78"><g transform="rotate(-18 50 0)"><path d="M0 -6 L92 -34 L92 26Z" fill="#FFB627"/><rect x="86" y="-38" width="18" height="68" rx="9" fill="#D99413"/><circle cx="56" cy="-8" r="9" fill="#D2453B"/><circle cx="72" cy="12" r="7" fill="#D2453B"/></g></svg>';
+  const mini = '<div class="d-mini">' + ['', 'a', '', '', 'o', '', 'a', '', ''].map(c => '<i class="' + c + '"></i>').join('') + '</div>';
+  const note = (cls, a, b) => '<div class="d-note ' + cls + '"><span class="pin"></span>' + esc(a) + (b ? '<br>' + esc(b) : '') + '</div>';
+
+  function pool() {
+    const n = S.employees.map(e => e.name);
+    const nm = (i, d) => n[i % Math.max(1, n.length)] || d;
+    return [
+      note('amber', nm(1, 'Jordan') + ':', 'no Tues \u2713'),
+      '<span class="d-chip">' + esc(nm(4, 'Marcus')) + '</span>',
+      '<div class="d-check">' + I.check + '</div>',
+      note('cream', 'Sat: sister\u2019s', 'wedding!'),
+      '<span class="d-flag">' + flagSVG + ' 1 late conflict</span>',
+      '<div class="d-slice">' + slice + '</div>',
+      '<span class="d-chip open">Open</span>',
+      note('red', 'NOT', 'TUES??'),
+      '<div class="d-mark">' + markSVG() + '</div>',
+      '<span class="d-chip amber">' + esc(nm(6, 'Kai')) + ' +5h</span>',
+      mini,
+      note('cream', 'no more', 'red string!'),
+      '<span class="d-chip">' + esc(nm(2, 'Priya')) + '</span>',
+      note('amber', 'schedule', 'done in 5 min'),
+      '<span class="d-flag">1 open spot</span>',
+      '<span class="d-chip">' + esc(nm(0, 'Dev')) + '</span>',
+    ];
+  }
+
+  function build() {
+    const gutter = (window.innerWidth - CONTENT) / 2;
+    layer.innerHTML = ''; items = [];
+    if (gutter < 36) return;                     // not enough room: stay out of the way
+    const scale = Math.max(.65, Math.min(1.05, gutter / 190));
+    const spacing = 210 * scale;
+    H = Math.max(window.innerHeight + 500, 1500);
+    const per = Math.ceil(H / spacing);
+    const p = gutter < 90 ? pool().filter(h => !h.startsWith("<span")) : pool();
+    let k = 0;
+    for (const side of ['left', 'right']) {
+      for (let i = 0; i < per; i++) {
+        const el = document.createElement('div');
+        el.className = 'd-item';
+        el.innerHTML = p[(k++ * 5 + (side === 'right' ? 3 : 0)) % p.length];
+        el.style.setProperty('--dur', (4 + Math.random() * 3).toFixed(2) + 's');
+        el.style.setProperty('--delay', (-Math.random() * 6).toFixed(2) + 's');
+        layer.appendChild(el);
+        const w = el.firstElementChild.offsetWidth * scale;
+        // centre in the gutter with a little wobble; on narrow gutters, let items peek in from the edge
+        const x = Math.max(-w * .3, (gutter - w) / 2 + (Math.random() - .5) * Math.max(0, gutter - w) * .5);
+        el.style[side] = x + 'px';
+        el.style.transformOrigin = side === 'left' ? 'left top' : 'right top';
+        items.push({ el, y: i * spacing + Math.random() * spacing * .5, speed: reduce ? 0 : .12 + Math.random() * .4, rot: (Math.random() - .5) * 16, scale });
+      }
+    }
+    update();
+  }
+
+  function update() {
+    ticking = false;
+    const sy = window.scrollY;
+    for (const it of items) {
+      const y = (((it.y - sy * it.speed) % H) + H) % H - 250;
+      it.el.style.transform = 'translate3d(0, ' + y.toFixed(1) + 'px, 0) rotate(' + it.rot.toFixed(1) + 'deg) scale(' + it.scale + ')';
+    }
+  }
+
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 150); });
+  build();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(build);
+})();
+</script>
+</body>
+</html>
