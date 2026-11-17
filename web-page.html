@@ -163,7 +163,33 @@
     border: 2px solid #e2e5ee; background: #fff; color: var(--ink);
   }
   input:focus, select:focus { outline: none; border-color: var(--amber); }
-  .form-msg { display: none; text-align: center; font-family: "Caveat", cursive; font-size: 1.6rem; color: var(--navy); }
+  .form-msg { display: none; text-align: center; color: var(--navy); }
+  .form-msg .hand { font-size: 1.9rem; display: block; line-height: 1.1; }
+  .form-msg p { margin: 6px 0 16px; color: var(--muted); }
+  .form-msg small { display: block; margin-top: 12px; color: var(--muted); font-size: .82rem; }
+
+  /* Live inbox peek under the form */
+  .peek { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; font: inherit; color: inherit; background: #fff; border: 2px dashed #e2e5ee; border-radius: 16px; padding: 12px 14px; cursor: pointer; transition: border-color .15s ease; }
+  .peek:hover, .peek:focus-visible { border-color: var(--amber); outline: none; }
+  .peek-av { width: 36px; height: 36px; border-radius: 10px; background: var(--navy); color: var(--amber); font-weight: 800; display: grid; place-items: center; flex: none; }
+  .peek-body { min-width: 0; flex: 1; display: grid; gap: 1px; }
+  .peek-top { display: flex; justify-content: space-between; gap: 8px; font-size: .82rem; color: var(--navy); }
+  .peek-tag { font-family: "Caveat", cursive; font-weight: 700; font-size: 1.05rem; color: var(--amber); line-height: 1; white-space: nowrap; }
+  .peek-subj { font-weight: 700; color: var(--navy); font-size: .92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .peek-line { font-size: .84rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Email preview */
+  .mail-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(22, 38, 74, .6); display: none; align-items: center; justify-content: center; padding: 20px; }
+  .mail-overlay.open { display: flex; }
+  .mail { background: var(--card); width: 100%; max-width: 720px; max-height: 92vh; border-radius: 26px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 30px 80px rgba(0,0,0,.35); }
+  .mail-top { background: var(--navy); color: #fff; padding: 14px 20px; display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .mail-top .x { margin-left: auto; background: none; border: 0; color: #fff; font-size: 1.7rem; line-height: 1; cursor: pointer; }
+  .mail-meta { padding: 14px 20px; border-bottom: 1px solid #ece8df; font-size: .92rem; color: var(--muted); display: grid; gap: 3px; }
+  .mail-meta strong { color: var(--navy); }
+  .mail-meta .subj { color: var(--navy); font-weight: 800; font-size: 1.1rem; margin-top: 4px; }
+  .mail iframe { border: 0; width: 100%; flex: 1; min-height: 60vh; background: var(--bg); }
+  .mail-note { padding: 10px 20px; font-size: .82rem; color: var(--muted); background: var(--amber-soft); }
+  @media (max-width: 640px) { .mail-overlay { padding: 0; align-items: flex-end; } .mail { border-radius: 22px 22px 0 0; max-height: 96vh; } }
 
   footer { padding: 30px 0 50px; color: var(--muted); font-size: .9rem; }
   footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
@@ -365,11 +391,11 @@
       <p class="hand" style="font-size:1.4rem;margin-top:18px">can't wait? <a href="app/index.html" style="color:var(--navy)">try the draft app →</a></p>
     </div>
     <form id="demo-form">
-      <label>Your name<input type="text" required placeholder="Alex Rivera"></label>
-      <label>Work email<input type="email" required placeholder="alex@company.com"></label>
-      <label>Company<input type="text" required placeholder="Company name"></label>
+      <label>Your name<input id="f-name" type="text" required placeholder="Alex Rivera" autocomplete="name"></label>
+      <label>Work email<input id="f-email" type="email" required placeholder="alex@company.com" autocomplete="email"></label>
+      <label>Company<input id="f-company" type="text" required placeholder="Company name" autocomplete="organization"></label>
       <label>Team size
-        <select>
+        <select id="f-size">
           <option>1–10 employees</option>
           <option>11–50 employees</option>
           <option>51–200 employees</option>
@@ -377,10 +403,36 @@
         </select>
       </label>
       <button class="btn btn-amber" type="submit">Book my demo</button>
-      <p class="form-msg" id="form-msg">Thanks! We'll be in touch soon.</p>
+      <button class="peek" id="peek" type="button" aria-label="Preview your welcome email">
+        <span class="peek-av">S</span>
+        <span class="peek-body">
+          <span class="peek-top"><strong>The Shiftwise team</strong><span class="peek-tag">your welcome email</span></span>
+          <span class="peek-subj" id="peek-subj"></span>
+          <span class="peek-line" id="peek-line"></span>
+        </span>
+      </button>
+      <div class="form-msg" id="form-msg" role="status">
+        <span class="hand" id="msg-hi">Thanks!</span>
+        <p id="msg-body">Your free-month welcome email is on its way.</p>
+        <button class="btn btn-amber" type="button" id="preview-btn">Preview your welcome email</button>
+        <small>Draft site: emails aren't sent yet. The preview shows exactly what you'd receive.</small>
+      </div>
     </form>
   </div>
 </section>
+
+<div class="mail-overlay" id="mail" role="dialog" aria-modal="true" aria-label="Welcome email preview">
+  <div class="mail">
+    <div class="mail-top"><span class="logo-mark" style="width:28px;height:28px;border-radius:9px;background:var(--amber)"><span style="background:var(--navy);width:11px;height:11px"></span></span>Inbox<button class="x" id="mail-close" aria-label="Close">&times;</button></div>
+    <div class="mail-meta">
+      <span><strong>From:</strong> The Shiftwise team</span>
+      <span><strong>To:</strong> <span id="mail-to"></span></span>
+      <span class="subj" id="mail-subj"></span>
+    </div>
+    <iframe id="mail-frame" title="Welcome email"></iframe>
+    <div class="mail-note">Preview only. Sending real emails needs an email service connected to this form.</div>
+  </div>
+</div>
 
 <footer>
   <div class="wrap">
@@ -390,11 +442,69 @@
 </footer>
 
 <script>
+  // Welcome email: template lives in emails/free-trial-welcome.html with {{placeholders}}
+  var lead = null;
+  var TEMPLATE_URL = 'emails/free-trial-welcome.html';
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function fill(html, d) { return html.replace(/{{\s*(\w+)\s*}}/g, function (m, k) { return k in d ? esc(d[k]) : m; }); }
+
+  // Read the form as it is right now. Blank fields get friendly stand-ins.
+  function readForm() {
+    var first = document.getElementById('f-name').value.trim().split(/\s+/)[0] || '';
+    first = first ? first.charAt(0).toUpperCase() + first.slice(1) : 'there';
+    return {
+      first_name: first,
+      email: document.getElementById('f-email').value.trim() || 'you@company.com',
+      company: document.getElementById('f-company').value.trim() || 'your store',
+      team_size: document.getElementById('f-size').value
+    };
+  }
+
+  // Live inbox peek under the form: updates on every keystroke.
+  var tpl = null; // template text, fetched once
+  function refresh() {
+    var d = lead || readForm();
+    document.getElementById('peek-subj').textContent = 'Your free month of Shiftwise is ready, ' + d.first_name;
+    document.getElementById('peek-line').textContent = 'Welcome aboard, ' + d.first_name + '! Thanks for your interest in Shiftwise for ' + d.company + '…';
+    if (document.getElementById('mail').classList.contains('open')) renderMail(d);
+  }
+  ['f-name', 'f-email', 'f-company', 'f-size'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', refresh);
+  });
+  refresh();
+
   document.getElementById('demo-form').addEventListener('submit', function (e) {
     e.preventDefault();
-    this.querySelectorAll('label, button').forEach(function (el) { el.style.display = 'none'; });
+    lead = readForm();
+    this.querySelectorAll('label, button[type=submit], .peek').forEach(function (el) { el.style.display = 'none'; });
+    document.getElementById('msg-hi').textContent = 'Thanks, ' + lead.first_name + '!';
+    document.getElementById('msg-body').textContent = 'Your free-month welcome email is headed to ' + lead.email + '.';
     document.getElementById('form-msg').style.display = 'block';
   });
+
+  function renderMail(d) {
+    var frame = document.getElementById('mail-frame');
+    document.getElementById('mail-to').textContent = d.email;
+    document.getElementById('mail-subj').textContent = 'Your free month of Shiftwise is ready, ' + d.first_name;
+    if (tpl) { frame.srcdoc = fill(tpl, d); return; }
+    fetch(TEMPLATE_URL).then(function (r) { if (!r.ok) throw 0; return r.text(); })
+      .then(function (html) { tpl = html; frame.srcdoc = fill(tpl, d); })
+      .catch(function () { frame.removeAttribute('srcdoc'); frame.src = TEMPLATE_URL; }); // opened from disk: show the raw template
+  }
+  var opener = null;
+  function openMail(e) {
+    opener = e && e.currentTarget;
+    document.getElementById('mail').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    renderMail(lead || readForm());
+    document.getElementById('mail-close').focus();
+  }
+  function closeMail() { document.getElementById('mail').classList.remove('open'); document.body.style.overflow = ''; if (opener) opener.focus(); }
+  document.getElementById('preview-btn').addEventListener('click', openMail);
+  document.getElementById('peek').addEventListener('click', openMail);
+  document.getElementById('mail-close').addEventListener('click', closeMail);
+  document.getElementById('mail').addEventListener('click', function (e) { if (e.target === this) closeMail(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && document.getElementById('mail').classList.contains('open')) closeMail(); });
   document.getElementById('share-btn').addEventListener('click', function () {
     var btn = this;
     try {

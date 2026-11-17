@@ -8,6 +8,7 @@ Smarter shifts, fewer headaches. Employees enter their own scheduling conflicts,
 |---|---|---|
 | Landing page | [web-page.html](https://cejohnson124.github.io/shiftwise/web-page.html) | [web-page.html](web-page.html) |
 | Draft app | [app/](https://cejohnson124.github.io/shiftwise/app/) | [app/index.html](app/index.html) |
+| Free-trial welcome email | [preview](https://cejohnson124.github.io/shiftwise/emails/free-trial-welcome.html) (fill in the demo form on the landing page to see it personalized) | [emails/free-trial-welcome.html](emails/free-trial-welcome.html) |
 | 30-second ad | [shiftwise-ad.mp4](https://cejohnson124.github.io/shiftwise/media/ad/shiftwise-ad.mp4) | [media/ad/](media/ad/) |
 
 ## The draft app
